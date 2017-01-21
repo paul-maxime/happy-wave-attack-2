@@ -119,10 +119,12 @@ class Human {
 
 		waveAttack.waterBar.addWater(10);
 		waveAttack.reelScore += 250;
+		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, 250, 1.5));
 	}
 	eatenBySea() {
 		waveAttack.playCoin();
 		waveAttack.reelScore += 250;
+		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, 250, 1.5));
 	}
 	dieAsEnemy() {
 		waveAttack.playExplosion();
@@ -243,6 +245,27 @@ class WaterBar {
 	}
 }
 
+class TextObject {
+	constructor (x, y, value, time) {
+//		console.log(x, y);
+		this.style = { font: "bold 32px Pixeleris", fill: "#00FF00", boundsAlignH: "left"};
+		this.text = game.add.text(0, 0, value, this.style);
+		this.text.x = x;
+		this.text.y = y - 100;
+		this.time = time;
+	}
+	update(deltaTime){
+		console.log(deltaTime, this.time);
+		this.text.y -= deltaTime * 40;
+		this.time -= deltaTime * 1;
+		return (this.time);
+	}
+	destroy(){
+		this.text.destroy();
+		this.text.kill();
+	}
+}
+
 class WaveAttack {
 	constructor () {
 		game = new Phaser.Game(1024, 600, Phaser.AUTO, '', {
@@ -354,6 +377,9 @@ class WaveAttack {
 //	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
 		this.textScore.x = game.world.width - 250;
 		this.textScore.y = 20;
+
+		this.tabText = [];
+		this.textGroup = game.add.group();
 	}
 	updateScore(scoreToAdd){
 		this.score += scoreToAdd;
@@ -396,6 +422,13 @@ class WaveAttack {
 		this.waterBar.update(deltaTime);
 		if (this.reelScore > this.score){
 			this.updateScore((((this.reelScore - this.score) / 10) | 0) + 1);
+		}
+		for (let i = 0; i < this.tabText.length; ++i){
+			if (this.tabText[i].update(deltaTime) <= 0){
+				this.tabText[i].destroy();
+				this.tabText.splice(i, 1);
+				--i;
+			}
 		}
 	}
 	playScream () {
