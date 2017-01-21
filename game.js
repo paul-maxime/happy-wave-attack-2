@@ -21,10 +21,9 @@ class Human {
 		this.sprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 		this.sprite.y = game.world.height - this.sprite.height / 2;
 		this.setupAnimations();
-		this.speed = game.rnd.integerInRange(125, 225);
+		this.speed = game.rnd.integerInRange(125, 180);
 
-		let darkness = game.rnd.integerInRange(0, 100);
-		this.sprite.tint = 0xFFFFFF - (darkness << 16) - (darkness << 8) - darkness;
+		this.removed = false;
 	}
 	getTexture() {
 		if (this.type == HumanType.MAN) {
@@ -42,6 +41,13 @@ class Human {
 	}
 	update (deltaTime) {
 		this.sprite.x -= deltaTime * this.speed;
+		if (this.sprite.x < -this.sprite.width) {
+			this.remove();
+		}
+	}
+	remove () {
+		this.sprite.kill();
+		this.removed = true;
 	}
 }
 
@@ -129,7 +135,7 @@ class WaveAttack {
 		this.wave.tint = 0x3070FF;
 		this.wave.y = game.world.height;
 
-		this.bgBack.tint = 0x80C0FF;
+		this.bgBack.tint = 0x60B0D0;
 		this.bgFront.tint = 0x8090A0;
 
 		this.waters = [];
@@ -164,11 +170,18 @@ class WaveAttack {
 		} else {
 			this.wave.scale.y -= delta
 		}
+		if (this.wave.scale.y > 21.0) {
+			this.wave.scale.y = 21.0;
+		}
 		if (this.wave.scale.y < 3.0) {
 			this.wave.scale.y = 3.0;
 		}
-		for (let man of this.humans) {
-			man.update(deltaTime);
+		for (let i = 0; i < this.humans.length; ++i) {
+			this.humans[i].update(deltaTime);
+			if (this.humans[i].removed) {
+				this.humans.splice(i, 1);
+				--i;
+			}
 		}
 		this.humanSpawner.update(deltaTime);
 	}
