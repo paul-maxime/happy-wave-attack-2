@@ -123,10 +123,12 @@ class Human {
 		this.sprite.animations.play('dead');
 
 		waveAttack.waterBar.addWater(10);
-		waveAttack.reelScore += 250;
+
+		waveAttack.humansKilled += 1;
 	}
 	eatenBySea() {
 		waveAttack.playCoin();
+		waveAttack.updateWaveColor(5);
 		waveAttack.reelScore += 250;
 	}
 	dieAsEnemy() {
@@ -145,7 +147,7 @@ class HumanSpawner {
 		this.spawnNextHuman();
 	}
 	spawnNextHuman () {
-		this.nextHuman = game.rnd.integerInRange(300, 2000);
+		this.nextHuman = game.rnd.integerInRange(300, 500);
 		waveAttack.humans.push(new Human());
 	}
 	update (deltaTime) {
@@ -340,7 +342,6 @@ class WaveAttack {
 		this.wave.scale.x = 5.0;
 		this.wave.scale.y = 10.0;
 		this.wave.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-		this.wave.tint = 0x3070FF;
 		this.wave.y = game.world.height;
 
 		this.waveUp = false;
@@ -357,7 +358,6 @@ class WaveAttack {
 			water.animations.add('default');
 			water.animations.play('default', 15, true);
 			water.x = water.width * i;
-			water.tint = 0x3070FF;
 			water.y = game.world.height;
 			this.waters.push(water);
 		}
@@ -369,6 +369,11 @@ class WaveAttack {
 	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
 		this.textScore.x = game.world.width - 250;
 		this.textScore.y = 20;
+
+		this.currentColor = {r: 0x30, g: 0x70, b: 0xFF};
+		this.currentBackColor = {r: 0x80, g: 0x90, b: 0xA0};
+		this.updateWaveColor(0);
+		this.humansKilled = 0;
 
 		var overlay = new Phaser.Graphics(this.game, 0, 0);
 		overlay.beginFill(0x000000, 0.7);
@@ -445,6 +450,29 @@ class WaveAttack {
 		if (this.reelScore > this.score){
 			this.updateScore((((this.reelScore - this.score) / 10) | 0) + 1);
 		}
+	}
+	updateWaveColor(delta) {
+		this.currentColor.r += delta * 0.5;
+		if (this.currentColor.r > 255) this.currentColor.r = 255;
+		this.currentColor.b -= delta * 1.0;
+		if (this.currentColor.b < 0) this.currentColor.b = 0;
+		this.currentColor.g -= delta * 1.5;
+		if (this.currentColor.g < 0) this.currentColor.g = 0;
+		let color = (this.currentColor.r << 16) + (this.currentColor.g << 8) + this.currentColor.b;
+		this.wave.tint = color;
+		for (let water of this.waters) {
+			water.tint = color;
+		}
+		this.waterBar.tint = color;
+
+		this.currentBackColor.r += delta * 0.2;
+		if (this.currentBackColor.r > 255) this.currentBackColor.r = 255;
+		this.currentBackColor.b -= delta * 0.4;
+		if (this.currentBackColor.b < 0) this.currentBackColor.b = 0;
+		this.currentBackColor.g -= delta * 0.6;
+		if (this.currentBackColor.g < 0) this.currentBackColor.g = 0;
+		color = (this.currentBackColor.r << 16) + (this.currentBackColor.g << 8) + this.currentBackColor.b;
+		this.bgBack.tint = color;
 	}
 	playScream () {
 		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
