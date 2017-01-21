@@ -413,6 +413,6 @@ class WaveAttack {
 	}
 };
 
-window.onload = function() {
+$(document).ready(function () {
 	waveAttack = new WaveAttack();
-};
+});
