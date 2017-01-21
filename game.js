@@ -20,6 +20,11 @@ var HumanType = {
 	COUNT : 4
 };
 
+var GameState = {
+	INGAME : 0,
+	GAMEOVER : 1
+}
+
 class Human {
 	constructor() {
 		this.type = game.rnd.integerInRange(1, HumanType.COUNT) - 1;
@@ -120,9 +125,11 @@ class Human {
 		waveAttack.waterBar.addWater(10);
 		waveAttack.reelScore += 250;
 		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, 250, 1.5));
+		waveAttack.humansKilled += 1;
 	}
 	eatenBySea() {
 		waveAttack.playCoin();
+		waveAttack.updateWaveColor(5);
 		waveAttack.reelScore += 250;
 		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, 250, 1.5));
 	}
@@ -142,7 +149,7 @@ class HumanSpawner {
 		this.spawnNextHuman();
 	}
 	spawnNextHuman () {
-		this.nextHuman = game.rnd.integerInRange(300, 2000);
+		this.nextHuman = game.rnd.integerInRange(300, 500);
 		waveAttack.humans.push(new Human());
 	}
 	update (deltaTime) {
@@ -191,6 +198,8 @@ class WaterBar {
 		this.maskOffsetStart = 23;
 		this.maskOffsetEnd = -5;
 
+		this.mask = new PIXI.Graphics();
+
 		this.backgroundSprite = game.add.sprite(posX, posY, 'life_bar_background', null, waveAttack.uiGroup);
 		this.backgroundSprite.scale.setTo(scale, scale);
 		this.backgroundSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
@@ -209,18 +218,19 @@ class WaterBar {
 	}
 	calcMask () {
 		var perc = this.curValue / this.maxValue;
-		var mask = new PIXI.Graphics();
-		mask.position.x = 0;
-		mask.position.y = 0;
-		mask.beginFill(0, 1);
-		mask.moveTo(this.maskOffsetStart, 0);
-		mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, 0);
-		mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, this.middleSprite.height);
-		mask.lineTo(this.maskOffsetStart, this.middleSprite.height);
-		mask.lineTo(this.maskOffsetStart, 0);
-		mask.endFill();
 
-		this.middleSprite.mask = mask;
+		this.mask.position.x = 0;
+		this.mask.position.y = 0;
+		this.mask.clear();
+		this.mask.beginFill(0, 1);
+		this.mask.moveTo(this.maskOffsetStart, 0);
+		this.mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, 0);
+		this.mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, this.middleSprite.height);
+		this.mask.lineTo(this.maskOffsetStart, this.middleSprite.height);
+		this.mask.lineTo(this.maskOffsetStart, 0);
+		this.mask.endFill();
+
+		this.middleSprite.mask = this.mask;
 	}
 	set tint (value) {
 		this.middleSprite.tint = value;
@@ -242,6 +252,10 @@ class WaterBar {
 			this.removeWater(1 * deltaTime);
 		}
 		this.calcMask();
+		if (this.curValue == 0)
+		{
+			waveAttack.gameState = GameState.GAMEOVER;
+		}
 	}
 }
 
@@ -327,6 +341,9 @@ class WaveAttack {
 	create () {
 		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
+		this.gameState = GameState.INGAME;
+		this.restartTimer = 0;
+
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
 
@@ -348,7 +365,6 @@ class WaveAttack {
 		this.wave.scale.x = 5.0;
 		this.wave.scale.y = 10.0;
 		this.wave.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-		this.wave.tint = 0x3070FF;
 		this.wave.y = game.world.height;
 
 		this.waveUp = false;
@@ -365,7 +381,6 @@ class WaveAttack {
 			water.animations.add('default');
 			water.animations.play('default', 15, true);
 			water.x = water.width * i;
-			water.tint = 0x3070FF;
 			water.y = game.world.height;
 			this.waters.push(water);
 		}
@@ -374,9 +389,31 @@ class WaveAttack {
 
 		var style = { font: "bold 32px Pixeleris", fill: "#fff", boundsAlignH: "left"};
 		this.textScore = game.add.text(0, 0, "score     " + this.getStringScore(this.score, 8), style);
-//	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
 		this.textScore.x = game.world.width - 250;
 		this.textScore.y = 20;
+
+		this.currentColor = {r: 0x30, g: 0x70, b: 0xFF};
+		this.currentBackColor = {r: 0x80, g: 0x90, b: 0xA0};
+		this.updateWaveColor(0);
+		this.humansKilled = 0;
+
+		var overlay = new Phaser.Graphics(this.game, 0, 0);
+		overlay.beginFill(0x000000, 0.7);
+		overlay.drawRect(0,0, game.world.width, game.world.height);
+		overlay.endFill();
+		this.deathOverlay = game.add.image(0, 0, overlay.generateTexture());
+		this.deathOverlay.visible = false;
+
+		this.gameOverText = game.add.text(0, 0, "GAME OVER", { font: "50px Pixeleris", fill: "red", boundsAlignH: "left"});
+		this.gameOverText.x = game.world.width / 2 - this.gameOverText.width / 2;
+		this.gameOverText.y = game.world.height / 2 - 100;		
+		this.gameOverText.visible = false;
+
+		this.restartText = game.add.text(0, 0, "PRESS SPACE TO RESTART", { font: "20px Pixeleris", fill: "white", boundsAlignH: "left"});
+		this.restartText.x = game.world.width / 2 - this.restartText.width / 2;
+		this.restartText.y = game.world.height / 2 + 50;		
+		this.restartText.visible = false;
 
 		this.tabText = [];
 		this.textGroup = game.add.group();
@@ -398,18 +435,33 @@ class WaveAttack {
 		// }
 		this.bgBack.update(deltaTime);
 		this.bgFront.update(deltaTime);
-		if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
-			this.waveUp = true;
-			this.wave.scale.y += delta;
-		} else {
-			this.wave.scale.y -= delta
-		}
-		if (this.wave.scale.y > 21.0) {
-			this.wave.scale.y = 21.0;
-		}
-		if (this.wave.scale.y < 3.0) {
+		if (this.gameState == GameState.INGAME) {
+			if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
+				this.waveUp = true;
+				this.wave.scale.y += delta;
+			} else {
+				this.wave.scale.y -= delta
+			}			
+			if (this.wave.scale.y > 21.0) {
+				this.wave.scale.y = 21.0;
+			}
+			if (this.wave.scale.y < 3.0) {
+				this.waveUp = false;
+				this.wave.scale.y = 3.0;
+			}
+		} else if (this.gameState == GameState.GAMEOVER) {
+			this.gameOverText.visible = true;
+			this.deathOverlay.visible = true;
 			this.waveUp = false;
-			this.wave.scale.y = 3.0;
+			this.wave.scale.y = 2.0;
+			this.restartTimer += deltaTime;
+			if (this.restartTimer >= 1) {
+				this.restartText.visible = true;
+				if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown)
+				{
+					this.create();
+				}
+			}
 		}
 		for (let i = 0; i < this.humans.length; ++i) {
 			this.humans[i].update(deltaTime);
@@ -419,7 +471,8 @@ class WaveAttack {
 			}
 		}
 		this.humanSpawner.update(deltaTime);
-		this.waterBar.update(deltaTime);
+		if (this.gameState == GameState.INGAME)
+			this.waterBar.update(deltaTime);
 		if (this.reelScore > this.score){
 			this.updateScore((((this.reelScore - this.score) / 10) | 0) + 1);
 		}
@@ -430,6 +483,29 @@ class WaveAttack {
 				--i;
 			}
 		}
+	}
+	updateWaveColor(delta) {
+		this.currentColor.r += delta * 0.5;
+		if (this.currentColor.r > 255) this.currentColor.r = 255;
+		this.currentColor.b -= delta * 1.0;
+		if (this.currentColor.b < 0) this.currentColor.b = 0;
+		this.currentColor.g -= delta * 1.5;
+		if (this.currentColor.g < 0) this.currentColor.g = 0;
+		let color = (this.currentColor.r << 16) + (this.currentColor.g << 8) + this.currentColor.b;
+		this.wave.tint = color;
+		for (let water of this.waters) {
+			water.tint = color;
+		}
+		this.waterBar.tint = color;
+
+		this.currentBackColor.r += delta * 0.2;
+		if (this.currentBackColor.r > 255) this.currentBackColor.r = 255;
+		this.currentBackColor.b -= delta * 0.4;
+		if (this.currentBackColor.b < 0) this.currentBackColor.b = 0;
+		this.currentBackColor.g -= delta * 0.6;
+		if (this.currentBackColor.g < 0) this.currentBackColor.g = 0;
+		color = (this.currentBackColor.r << 16) + (this.currentBackColor.g << 8) + this.currentBackColor.b;
+		this.bgBack.tint = color;
 	}
 	playScream () {
 		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
