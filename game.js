@@ -41,6 +41,10 @@ class Human {
 	}
 	update (deltaTime) {
 		this.sprite.x -= deltaTime * this.speed;
+		if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.y < waveAttack.waveHeight) {
+			waveAttack.playScream();
+			this.remove();
+		}
 		if (this.sprite.x < -this.sprite.width) {
 			this.remove();
 		}
@@ -100,9 +104,9 @@ class Background {
 class WaveAttack {
 	constructor () {
 		game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
-			preload: this.preload,
-			create: this.create,
-			update: this.update
+			preload: () => this.preload(),
+			create: () => this.create(),
+			update: () => this.update()
 		});
 	}
 	preload () {
@@ -112,15 +116,20 @@ class WaveAttack {
 		game.load.spritesheet('woman', 'assets/madame_color.png', 32, 32);
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
+
+		for (let i = 1; i <= 8; ++i) {
+			game.load.audio('scream' + i, 'assets/FXScream' + i + '.ogg');
+			let audio = game.add.audio('scream' + i);
+			audio.allowMultiple = true;
+		}
 	}
 	create () {
-		waveAttack = this
-;
+		waveAttack = this;
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
 
-		this.humansGroup = this.add.group();
-		this.waterGroup = this.add.group();
+		this.humansGroup = game.add.group();
+		this.waterGroup = game.add.group();
 
 		this.humans = [];
 		this.humanSpawner = new HumanSpawner();
@@ -176,6 +185,7 @@ class WaveAttack {
 		if (this.wave.scale.y < 3.0) {
 			this.wave.scale.y = 3.0;
 		}
+		this.waveHeight = this.wave.height * this.wave.scale.y;
 		for (let i = 0; i < this.humans.length; ++i) {
 			this.humans[i].update(deltaTime);
 			if (this.humans[i].removed) {
@@ -184,6 +194,10 @@ class WaveAttack {
 			}
 		}
 		this.humanSpawner.update(deltaTime);
+	}
+	playScream () {
+		let index = game.rnd.integerInRange(1, 8);
+		game.sound.play('scream' + index);
 	}
 };
 
