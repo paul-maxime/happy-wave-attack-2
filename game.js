@@ -75,7 +75,7 @@ class Human {
 		this.sprite.x += deltaTime * this.speedX;
 		this.sprite.y += deltaTime * this.speedY;
 		if (!this.dying) {
-			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y - this.sprite.height / 3 > (game.world.height - waveAttack.wave.height / 1.6)) {
+			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y - this.sprite.height / 3 > (waveAttack.wave.y - waveAttack.wave.height)) {
 				if (this.type === HumanType.MISSILE_FAN) {
 					this.dieAsEnemy();
 				} else {
@@ -264,7 +264,7 @@ class WaveAttack {
 		return (strValue);
 	}
 	preload () {
-		game.load.spritesheet('wave', 'assets/wave.png', 32, 32);
+		game.load.spritesheet('wave', 'assets/wave.png', 32, 64);
 		game.load.spritesheet('water', 'assets/water.png', 32, 32);
 
 		for (let i = 1; i <= MAN_TEXTURE_COUNT; ++i) {
@@ -327,8 +327,8 @@ class WaveAttack {
 		this.wave.anchor.setTo(0, 1);
 		this.wave.animations.add('swim');
 		this.wave.animations.play('swim', 15, true);
-		this.wave.scale.x = 5.0;
-		this.wave.scale.y = 10.0;
+		this.wave.scale.x = 6.0;
+		this.wave.scale.y = 6.0;
 		this.wave.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 		this.wave.y = game.world.height;
 
@@ -369,30 +369,33 @@ class WaveAttack {
 	}
 	update () {
 		let deltaTime = (game.time.elapsed / 1000);
-		let delta = deltaTime * 25;
-		// if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR)) {
-		// 	this.wave.y -= delta;
-		// } else {
-		// 	this.wave.y += delta
-		// }
-		// if (this.wave.y > game.world.height - this.wave.height) {
-		// 	this.wave.y = game.world.height - this.wave.height;
-		// }
+		let delta = deltaTime * 500;
 		this.bgBack.update(deltaTime);
 		this.bgFront.update(deltaTime);
 		if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
-			this.waveUp = true;
-			this.wave.scale.y += delta;
+			this.wave.y -= delta;
 		} else {
-			this.wave.scale.y -= delta
+			this.wave.y += delta
 		}
-		if (this.wave.scale.y > 21.0) {
-			this.wave.scale.y = 21.0;
+		if (this.wave.y > game.world.height + this.wave.height - 80) {
+			this.wave.y = game.world.height + this.wave.height - 80;
 		}
-		if (this.wave.scale.y < 3.0) {
-			this.waveUp = false;
-			this.wave.scale.y = 3.0;
+		if (this.wave.y < game.world.height) {
+			this.wave.y = game.world.height;
 		}
+		// if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
+		// 	this.waveUp = true;
+		// 	this.wave.scale.y += delta;
+		// } else {
+		// 	this.wave.scale.y -= delta
+		// }
+		// if (this.wave.scale.y > 21.0) {
+		// 	this.wave.scale.y = 21.0;
+		// }
+		// if (this.wave.scale.y < 3.0) {
+		// 	this.waveUp = false;
+		// 	this.wave.scale.y = 3.0;
+		// }
 		for (let i = 0; i < this.humans.length; ++i) {
 			this.humans[i].update(deltaTime);
 			if (this.humans[i].removed) {
