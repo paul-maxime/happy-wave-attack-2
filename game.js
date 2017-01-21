@@ -291,7 +291,7 @@ class WaveAttack {
 		// }
 		this.bgBack.update(deltaTime);
 		this.bgFront.update(deltaTime);
-		if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR)) {
+		if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
 			this.wave.scale.y += delta;
 		} else {
 			this.wave.scale.y -= delta
