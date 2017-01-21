@@ -118,11 +118,11 @@ class Human {
 		this.sprite.animations.play('dead');
 
 		waveAttack.waterBar.addWater(10);
-		waveAttack.updateScore(5);
+		waveAttack.reelScore += 250;
 	}
 	eatenBySea() {
 		waveAttack.playCoin();
-
+		waveAttack.reelScore += 250;
 	}
 	dieAsEnemy() {
 		waveAttack.playExplosion();
@@ -347,16 +347,17 @@ class WaveAttack {
 			this.waters.push(water);
 		}
 		this.score = 0;
+		this.reelScore = 0;
 
 		var style = { font: "bold 32px Pixeleris", fill: "#fff", boundsAlignH: "left"};
-		this.textScore = game.add.text(0, 0, "score     " + this.getStringScore(this.score, 5), style);
+		this.textScore = game.add.text(0, 0, "score     " + this.getStringScore(this.score, 8), style);
 //	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
-		this.textScore.x = game.world.width - 220;
+		this.textScore.x = game.world.width - 250;
 		this.textScore.y = 20;
 	}
 	updateScore(scoreToAdd){
 		this.score += scoreToAdd;
-		this.textScore.text = "score     " + this.getStringScore(this.score, 5);
+		this.textScore.text = "score     " + this.getStringScore(this.score, 8);
 	}
 	update () {
 		let deltaTime = (game.time.elapsed / 1000);
@@ -393,6 +394,9 @@ class WaveAttack {
 		}
 		this.humanSpawner.update(deltaTime);
 		this.waterBar.update(deltaTime);
+		if (this.reelScore > this.score){
+			this.updateScore((((this.reelScore - this.score) / 10) | 0) + 1);
+		}
 	}
 	playScream () {
 		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
