@@ -118,6 +118,7 @@ class Human {
 		this.sprite.animations.play('dead');
 
 		waveAttack.waterBar.addWater(10);
+		waveAttack.updateScore(5);
 	}
 	dieAsEnemy() {
 		waveAttack.playExplosion();
