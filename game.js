@@ -107,9 +107,12 @@ class Human {
 		this.speedY = speed.y * 500;
 
 		this.sprite.animations.play('dead');
+
+		waveAttack.waterBar.addWater(10);
 	}
 	dieAsEnemy() {
 		waveAttack.playExplosion();
+		waveAttack.waterBar.removeWater(10);
 		this.remove();
 	}
 	remove() {
@@ -169,6 +172,9 @@ class WaterBar {
 		this.maxValue = 100;
 		this.curValue = this.maxValue;
 
+		this.maskOffsetStart = 23;
+		this.maskOffsetEnd = -5;
+
 		this.backgroundSprite = game.add.sprite(posX, posY, 'life_bar_background', null, waveAttack.uiGroup);
 		this.backgroundSprite.scale.setTo(scale, scale);
 		this.backgroundSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
@@ -179,13 +185,47 @@ class WaterBar {
 		this.middleSprite.animations.add('default');
 		this.middleSprite.animations.play('default', 15, true);
 		this.middleSprite.tint = defaultColor;
+		this.calcMask();
 
 		this.borderSprite = game.add.sprite(posX, posY, 'life_bar_border', null, waveAttack.uiGroup);
 		this.borderSprite.scale.setTo(scale, scale);
 		this.borderSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 	}
+	calcMask () {
+		var perc = this.curValue / this.maxValue;
+		var mask = new PIXI.Graphics();
+		mask.position.x = 0;
+		mask.position.y = 0;
+		mask.beginFill(0, 1);
+		mask.moveTo(this.maskOffsetStart, 0);
+		mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, 0);
+		mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, this.middleSprite.height);
+		mask.lineTo(this.maskOffsetStart, this.middleSprite.height);
+		mask.lineTo(this.maskOffsetStart, 0);
+		mask.endFill();
+
+		this.middleSprite.mask = mask;
+	}
 	set tint (value) {
 		this.middleSprite.tint = value;
+	}
+	removeWater (value) {
+		this.curValue -= value;
+		if (this.curValue < 0)
+			this.curValue = 0;
+	}
+	addWater (value) {
+		this.curValue += value;
+		if (this.curValue > this.maxValue)
+			this.curValue = this.maxValue;
+	}
+	update (deltaTime) {
+		if (waveAttack.waveUp) {
+			this.removeWater(5 * deltaTime);
+		} else {
+			this.removeWater(1 * deltaTime);
+		}
+		this.calcMask();
 	}
 }
 
@@ -279,6 +319,8 @@ class WaveAttack {
 		this.wave.tint = 0x3070FF;
 		this.wave.y = game.world.height;
 
+		this.waveUp = false;
+
 		this.bgBack.tint = 0x60B0D0;
 		this.bgFront.tint = 0x8090A0;
 
@@ -321,8 +363,10 @@ class WaveAttack {
 		this.bgBack.update(deltaTime);
 		this.bgFront.update(deltaTime);
 		if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
+			this.waveUp = true;
 			this.wave.scale.y += delta;
 		} else {
+			this.waveUp = false;
 			this.wave.scale.y -= delta
 		}
 		if (this.wave.scale.y > 21.0) {
@@ -339,6 +383,7 @@ class WaveAttack {
 			}
 		}
 		this.humanSpawner.update(deltaTime);
+		this.waterBar.update(deltaTime);
 	}
 	playScream () {
 		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
