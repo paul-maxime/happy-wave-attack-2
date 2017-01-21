@@ -20,6 +20,11 @@ var HumanType = {
 	COUNT : 4
 };
 
+var GameState = {
+	INGAME : 0,
+	GAMEOVER : 1
+}
+
 class Human {
 	constructor() {
 		this.type = game.rnd.integerInRange(1, HumanType.COUNT) - 1;
@@ -118,13 +123,15 @@ class Human {
 		this.sprite.animations.play('dead');
 
 		waveAttack.waterBar.addWater(10);
-
+		waveAttack.reelScore += 250;
+		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, 250, 1.5));
 		waveAttack.humansKilled += 1;
 	}
 	eatenBySea() {
 		waveAttack.playCoin();
 		waveAttack.updateWaveColor(5);
 		waveAttack.reelScore += 250;
+		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, 250, 1.5));
 	}
 	dieAsEnemy() {
 		waveAttack.playExplosion();
@@ -245,6 +252,31 @@ class WaterBar {
 			this.removeWater(1 * deltaTime);
 		}
 		this.calcMask();
+		if (this.curValue == 0)
+		{
+			waveAttack.gameState = GameState.GAMEOVER;
+		}
+	}
+}
+
+class TextObject {
+	constructor (x, y, value, time) {
+//		console.log(x, y);
+		this.style = { font: "bold 32px Pixeleris", fill: "#00FF00", boundsAlignH: "left"};
+		this.text = game.add.text(0, 0, value, this.style);
+		this.text.x = x;
+		this.text.y = y - 100;
+		this.time = time;
+	}
+	update(deltaTime){
+		console.log(deltaTime, this.time);
+		this.text.y -= deltaTime * 40;
+		this.time -= deltaTime * 1;
+		return (this.time);
+	}
+	destroy(){
+		this.text.destroy();
+		this.text.kill();
 	}
 }
 
@@ -309,6 +341,9 @@ class WaveAttack {
 	create () {
 		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
+		this.gameState = GameState.INGAME;
+		this.restartTimer = 0;
+
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
 
@@ -354,7 +389,7 @@ class WaveAttack {
 
 		var style = { font: "bold 32px Pixeleris", fill: "#fff", boundsAlignH: "left"};
 		this.textScore = game.add.text(0, 0, "score     " + this.getStringScore(this.score, 8), style);
-//	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
 		this.textScore.x = game.world.width - 250;
 		this.textScore.y = 20;
 
@@ -362,6 +397,26 @@ class WaveAttack {
 		this.currentBackColor = {r: 0x80, g: 0x90, b: 0xA0};
 		this.updateWaveColor(0);
 		this.humansKilled = 0;
+
+		var overlay = new Phaser.Graphics(this.game, 0, 0);
+		overlay.beginFill(0x000000, 0.7);
+		overlay.drawRect(0,0, game.world.width, game.world.height);
+		overlay.endFill();
+		this.deathOverlay = game.add.image(0, 0, overlay.generateTexture());
+		this.deathOverlay.visible = false;
+
+		this.gameOverText = game.add.text(0, 0, "GAME OVER", { font: "50px Pixeleris", fill: "red", boundsAlignH: "left"});
+		this.gameOverText.x = game.world.width / 2 - this.gameOverText.width / 2;
+		this.gameOverText.y = game.world.height / 2 - 100;
+		this.gameOverText.visible = false;
+
+		this.restartText = game.add.text(0, 0, "PRESS SPACE TO RESTART", { font: "20px Pixeleris", fill: "white", boundsAlignH: "left"});
+		this.restartText.x = game.world.width / 2 - this.restartText.width / 2;
+		this.restartText.y = game.world.height / 2 + 50;
+		this.restartText.visible = false;
+
+		this.tabText = [];
+		this.textGroup = game.add.group();
 	}
 	updateScore(scoreToAdd){
 		this.score += scoreToAdd;
@@ -372,16 +427,33 @@ class WaveAttack {
 		let delta = deltaTime * 500;
 		this.bgBack.update(deltaTime);
 		this.bgFront.update(deltaTime);
-		if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
-			this.wave.y -= delta;
-		} else {
-			this.wave.y += delta
-		}
-		if (this.wave.y > game.world.height + this.wave.height - 80) {
-			this.wave.y = game.world.height + this.wave.height - 80;
-		}
-		if (this.wave.y < game.world.height) {
-			this.wave.y = game.world.height;
+		if (this.gameState == GameState.INGAME) {
+			if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
+				this.waveUp = true;
+				this.wave.y -= delta;
+			} else {
+				this.wave.y += delta
+			}
+			if (this.wave.y > game.world.height + this.wave.height - 80) {
+				this.waveUp = false;
+				this.wave.y = game.world.height + this.wave.height - 80;
+			}
+			if (this.wave.y < game.world.height) {
+				this.wave.y = game.world.height;
+			}
+		} else if (this.gameState == GameState.GAMEOVER) {
+			this.gameOverText.visible = true;
+			this.deathOverlay.visible = true;
+			this.waveUp = false;
+			this.wave.scale.y = 2.0;
+			this.restartTimer += deltaTime;
+			if (this.restartTimer >= 1) {
+				this.restartText.visible = true;
+				if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown)
+				{
+					this.create();
+				}
+			}
 		}
 		// if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
 		// 	this.waveUp = true;
@@ -404,9 +476,17 @@ class WaveAttack {
 			}
 		}
 		this.humanSpawner.update(deltaTime);
-		this.waterBar.update(deltaTime);
+		if (this.gameState == GameState.INGAME)
+			this.waterBar.update(deltaTime);
 		if (this.reelScore > this.score){
 			this.updateScore((((this.reelScore - this.score) / 10) | 0) + 1);
+		}
+		for (let i = 0; i < this.tabText.length; ++i){
+			if (this.tabText[i].update(deltaTime) <= 0){
+				this.tabText[i].destroy();
+				this.tabText.splice(i, 1);
+				--i;
+			}
 		}
 	}
 	updateWaveColor(delta) {
