@@ -130,6 +130,7 @@ class Background {
 	}
 }
 
+
 class WaveAttack {
 	constructor () {
 		game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
@@ -137,6 +138,23 @@ class WaveAttack {
 			create: () => this.create(),
 			update: () => this.update()
 		});
+	}
+	getStringScore(score, strScore, scaleScore) {
+		let forScale =  Math.pow(10, scaleScore);
+		if (score < forScale) {
+			strScore += "0";
+		}
+		else {
+			let tmp = score;
+			score -= forScale * ((tmp / forScale) | 0);
+			strScore += (tmp / forScale) | 0;
+		}
+		console.log(score);
+		console.log(strScore);
+		if (scaleScore == 0){
+			return (strScore);
+		}
+		return (this.getStringScore(score, strScore, scaleScore - 1));
 	}
 	preload () {
 		game.load.spritesheet('wave', 'assets/wave.png', 32, 32);
@@ -203,7 +221,17 @@ class WaveAttack {
 			water.y = game.world.height;
 			this.waters.push(water);
 		}
-		this.score = 0;
+		this.score = 182;
+
+		var style = { font: "bold 32px Pixeleris", fill: "#fff", boundsAlignH: "left"};
+		this.textScore = game.add.text(0, 0, "score     " + this.getStringScore(this.score, "", 5), style);
+	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+		this.textScore.x = game.world.width - 220;
+		this.textScore.y = 20;
+	}
+	updateScore(scoreToAdd){
+		this.score += scoreToAdd;
+		this.textScore.text = "score     " + this.getStringScore(this.score, "", 5)
 	}
 	update () {
 		let deltaTime = (game.time.elapsed / 1000);
