@@ -10,7 +10,7 @@ var HumanType = {
 };
 
 class Human {
-	constructor () {
+	constructor() {
 		this.type = game.rnd.integerInRange(0, HumanType.COUNT);
 
 		this.sprite = game.add.sprite(0, 0, this.getTexture(), null, waveAttack.humansGroup);
@@ -21,9 +21,12 @@ class Human {
 		this.sprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 		this.sprite.y = game.world.height - this.sprite.height / 2;
 		this.setupAnimations();
-		this.speed = game.rnd.integerInRange(125, 180);
 
+		this.dying = false;
 		this.removed = false;
+
+		this.speedX = -game.rnd.integerInRange(125, 180);
+		this.speedY = 0;
 	}
 	getTexture() {
 		if (this.type == HumanType.MAN) {
@@ -39,17 +42,27 @@ class Human {
 		}
 		this.sprite.animations.play('default', 15, true);
 	}
-	update (deltaTime) {
-		this.sprite.x -= deltaTime * this.speed;
-		if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y < waveAttack.waveHeight) {
-			waveAttack.playScream();
-			this.remove();
+	update(deltaTime) {
+		this.sprite.x += deltaTime * this.speedX;
+		this.sprite.y += deltaTime * this.speedY;
+		if (!this.dying) {
+			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y < waveAttack.waveHeight) {
+				waveAttack.playScream();
+				this.dying = true;
+				this.speedX = 500;
+				this.speedY = -500;
+			}
+		} else {
+			this.sprite.rotation += 15.0 * deltaTime;
+			this.sprite.scale.x -= 3 * deltaTime;
+			this.sprite.scale.y -= 3 * deltaTime;
 		}
-		if (this.sprite.x < -this.sprite.width) {
+		if (this.sprite.x < -this.sprite.width || this.sprite.x > game.world.width + this.sprite.width ||
+			this.sprite.y < -this.sprite.height || this.sprite.y > game.world.height + this.sprite.height) {
 			this.remove();
 		}
 	}
-	remove () {
+	remove() {
 		this.sprite.kill();
 		this.removed = true;
 	}
@@ -136,7 +149,7 @@ class WaveAttack {
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
 
-		this.music = game.add.audio('song', 0.3, true);
+		this.music = game.add.audio('song', 0.6, true);
 		this.music.play();
 
 		this.humansGroup = game.add.group();
