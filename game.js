@@ -72,7 +72,7 @@ class Human {
 		this.sprite.x += deltaTime * this.speedX;
 		this.sprite.y += deltaTime * this.speedY;
 		if (!this.dying) {
-			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y < waveAttack.waveHeight) {
+			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y > (game.world.height - waveAttack.wave.height / 1.6)) {
 				if (this.type === HumanType.MISSILE_FAN) {
 					this.dieAsEnemy();
 				} else {
@@ -269,7 +269,6 @@ class WaveAttack {
 		if (this.wave.scale.y < 3.0) {
 			this.wave.scale.y = 3.0;
 		}
-		this.waveHeight = this.wave.height * this.wave.scale.y;
 		for (let i = 0; i < this.humans.length; ++i) {
 			this.humans[i].update(deltaTime);
 			if (this.humans[i].removed) {
