@@ -1,8 +1,48 @@
 'use strict';
 
+var waveAttack;
+var game;
+
+class Human {
+	constructor () {
+		this.sprite = game.add.sprite(0, 0, 'man');
+		this.sprite.anchor.setTo(0.5, 0.5);
+		this.sprite.x = game.world.width + this.sprite.height;
+		this.sprite.animations.add('default', [0, 1, 2, 3]);
+		let scale = game.rnd.integerInRange(30, 50) / 10;
+		this.sprite.scale.setTo(scale, scale);
+		this.sprite.animations.play('default', 15, true);
+		this.sprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+		this.sprite.y = game.world.height - this.sprite.height / 2;
+		for (let i = 0; i < 32; ++i) {
+			this.sprite.moveDown();
+		}
+		this.speed = game.rnd.integerInRange(50, 200);
+	}
+	update (deltaTime) {
+		this.sprite.x -= deltaTime * this.speed;
+	}
+}
+
+class HumanSpawner {
+	constructor () {
+		this.spawnNextHuman();
+	}
+	spawnNextHuman () {
+		this.nextHuman = game.rnd.integerInRange(500, 3000);
+		waveAttack.humans.push(new Human());
+	}
+	update (deltaTime) {
+		this.nextHuman -= deltaTime * 1000;
+		if (this.nextHuman < 0) {
+			this.spawnNextHuman();
+		}
+	}
+}
+
 class WaveAttack {
 	constructor () {
-		window.game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
+		game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
 			preload: this.preload,
 			create: this.create,
 			update: this.update
@@ -14,6 +54,8 @@ class WaveAttack {
 		game.load.spritesheet('man', 'assets/monsieur.png', 32, 32);
 	}
 	create () {
+		waveAttack = this;
+
 		this.wave = game.add.sprite(0, 0, 'wave');
 		this.wave.anchor.setTo(0, 1);
 		this.wave.animations.add('swim');
@@ -39,19 +81,7 @@ class WaveAttack {
 		}
 
 		this.humans = [];
-
-		let man = game.add.sprite(0, 0, 'man');
-		man.anchor.setTo(0.5, 0.5);
-		man.x = game.world.width;
-		man.animations.add('default', [0, 1, 2, 3]);
-		man.scale.setTo(5, 5);
-		man.animations.play('default', 15, true);
-		man.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-		man.y = game.world.height - man.height / 2;
-		for (let i = 0; i < 32; ++i) {
-			man.moveDown();
-		}
-		this.humans.push(man);
+		this.humanSpawner = new HumanSpawner();
 	}
 	update () {
 		let deltaTime = (game.time.elapsed / 1000);
@@ -73,8 +103,10 @@ class WaveAttack {
 			this.wave.scale.y = 3.0;
 		}
 		for (let man of this.humans) {
-			man.x -= deltaTime * 75;
+			man.update(deltaTime);
 		}
+		this.humanSpawner.update(deltaTime);
+
 	}
 };
 
