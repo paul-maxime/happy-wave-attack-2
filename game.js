@@ -66,30 +66,31 @@ class HumanSpawner {
 }
 
 class Background {
-	constructor (image, speed) {
+	constructor (image, speed, scale, number) {
 		this.speed = speed;
-		this.spriteA = game.add.sprite(0, 0, image);
-		this.spriteA.scale.setTo(9, 9);
-		this.spriteA.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-		this.spriteB = game.add.sprite(this.spriteA.width, 0, image);
-		this.spriteB.scale.setTo(9, 9);
-		this.spriteB.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-		this.spriteC = game.add.sprite(this.spriteA.width * 2, 0, image);
-		this.spriteC.scale.setTo(9, 9);
-		this.spriteC.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+		this.sprites = [];
+
+		for (let i = 0; i < number; ++i) {
+			let sprite = game.add.sprite(0, 0, image);
+			sprite.scale.setTo(scale, scale);
+			sprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+			sprite.x = sprite.width * i;
+			sprite.y = game.world.height;
+			sprite.anchor.setTo(0, 1);
+			this.sprites.push(sprite);
+		}
+	}
+	set tint (value) {
+		for (let sprite of this.sprites) {
+			sprite.tint = value;
+		}
 	}
 	update (deltaTime) {
-		this.spriteA.x -= deltaTime * this.speed;
-		this.spriteB.x -= deltaTime * this.speed;
-		this.spriteC.x -= deltaTime * this.speed;
-		if (this.spriteA.x < -this.spriteA.width) {
-			this.spriteA.x += this.spriteA.width * 3;
-		}
-		if (this.spriteB.x < -this.spriteB.width) {
-			this.spriteB.x += this.spriteB.width * 3;
-		}
-		if (this.spriteC.x < -this.spriteC.width) {
-			this.spriteC.x += this.spriteC.width * 3;
+		for (let sprite of this.sprites) {
+			sprite.x -= deltaTime * this.speed;
+			if (sprite.x < -sprite.width) {
+				sprite.x += sprite.width * this.sprites.length;
+			}
 		}
 	}
 }
@@ -123,8 +124,11 @@ class WaveAttack {
 		this.wave.tint = 0x3070FF;
 		this.wave.y = game.world.height;
 
-		this.bgBack = new Background('scrolling-back', 50);
-		this.bgFront = new Background('scrolling-front', 100);
+		this.bgBack = new Background('scrolling-back', 50, 10, 3);
+		this.bgFront = new Background('scrolling-front', 100, 4, 10);
+
+		this.bgBack.tint = 0x3070FF;
+		//this.bgFront.tint = 0x3070FF;
 
 		this.waters = [];
 		for (let i = 0; i < 10; ++i) {
