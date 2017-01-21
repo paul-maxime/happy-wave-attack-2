@@ -72,7 +72,7 @@ class Human {
 		this.sprite.x += deltaTime * this.speedX;
 		this.sprite.y += deltaTime * this.speedY;
 		if (!this.dying) {
-			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y > (game.world.height - waveAttack.wave.height / 1.6)) {
+			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y - this.sprite.height / 3 > (game.world.height - waveAttack.wave.height / 1.6)) {
 				if (this.type === HumanType.MISSILE_FAN) {
 					this.dieAsEnemy();
 				} else {
@@ -251,6 +251,8 @@ class WaveAttack {
 		game.load.audio('song', 'assets/song.ogg');
 	}
 	create () {
+		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
 
