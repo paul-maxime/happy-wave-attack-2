@@ -124,6 +124,7 @@ class Human {
 	eatenBySea() {
 		waveAttack.playCoin();
 		waveAttack.updateWaveColor(5);
+		waveAttack.reelScore += 250;
 	}
 	dieAsEnemy() {
 		waveAttack.playExplosion();
@@ -190,6 +191,8 @@ class WaterBar {
 		this.maskOffsetStart = 23;
 		this.maskOffsetEnd = -5;
 
+		this.mask = new PIXI.Graphics();
+
 		this.backgroundSprite = game.add.sprite(posX, posY, 'life_bar_background', null, waveAttack.uiGroup);
 		this.backgroundSprite.scale.setTo(scale, scale);
 		this.backgroundSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
@@ -208,18 +211,19 @@ class WaterBar {
 	}
 	calcMask () {
 		var perc = this.curValue / this.maxValue;
-		var mask = new PIXI.Graphics();
-		mask.position.x = 0;
-		mask.position.y = 0;
-		mask.beginFill(0, 1);
-		mask.moveTo(this.maskOffsetStart, 0);
-		mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, 0);
-		mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, this.middleSprite.height);
-		mask.lineTo(this.maskOffsetStart, this.middleSprite.height);
-		mask.lineTo(this.maskOffsetStart, 0);
-		mask.endFill();
 
-		this.middleSprite.mask = mask;
+		this.mask.position.x = 0;
+		this.mask.position.y = 0;
+		this.mask.clear();
+		this.mask.beginFill(0, 1);
+		this.mask.moveTo(this.maskOffsetStart, 0);
+		this.mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, 0);
+		this.mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, this.middleSprite.height);
+		this.mask.lineTo(this.maskOffsetStart, this.middleSprite.height);
+		this.mask.lineTo(this.maskOffsetStart, 0);
+		this.mask.endFill();
+
+		this.middleSprite.mask = this.mask;
 	}
 	set tint (value) {
 		this.middleSprite.tint = value;
@@ -252,22 +256,12 @@ class WaveAttack {
 			update: () => this.update()
 		});
 	}
-	getStringScore(score, strScore, scaleScore) {
-		let forScale =  Math.pow(10, scaleScore);
-		if (score < forScale) {
-			strScore += "0";
+	getStringScore(score, maxScale) {
+		let strValue = score.toString();
+		while (strValue.length < maxScale){
+			strValue = "0" + strValue;
 		}
-		else {
-			let tmp = score;
-			score -= forScale * ((tmp / forScale) | 0);
-			strScore += (tmp / forScale) | 0;
-		}
-		console.log(score);
-		console.log(strScore);
-		if (scaleScore == 0){
-			return (strScore);
-		}
-		return (this.getStringScore(score, strScore, scaleScore - 1));
+		return (strValue);
 	}
 	preload () {
 		game.load.spritesheet('wave', 'assets/wave.png', 32, 32);
@@ -357,20 +351,22 @@ class WaveAttack {
 			water.y = game.world.height;
 			this.waters.push(water);
 		}
-		this.score = 182;
+		this.score = 0;
+		this.reelScore = 0;
 
 		var style = { font: "bold 32px Pixeleris", fill: "#fff", boundsAlignH: "left"};
-		this.textScore = game.add.text(0, 0, "score     " + this.getStringScore(this.score, "", 5), style);
-	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
-		this.textScore.x = game.world.width - 220;
+		this.textScore = game.add.text(0, 0, "score     " + this.getStringScore(this.score, 8), style);
+//	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+		this.textScore.x = game.world.width - 250;
 		this.textScore.y = 20;
 
 		this.currentColor = {r: 0x30, g: 0x70, b: 0xFF};
+		this.updateWaveColor(0);
 		this.humansKilled = 0;
 	}
 	updateScore(scoreToAdd){
 		this.score += scoreToAdd;
-		this.textScore.text = "score     " + this.getStringScore(this.score, "", 5)
+		this.textScore.text = "score     " + this.getStringScore(this.score, 8);
 	}
 	update () {
 		let deltaTime = (game.time.elapsed / 1000);
@@ -407,6 +403,9 @@ class WaveAttack {
 		}
 		this.humanSpawner.update(deltaTime);
 		this.waterBar.update(deltaTime);
+		if (this.reelScore > this.score){
+			this.updateScore((((this.reelScore - this.score) / 10) | 0) + 1);
+		}
 	}
 	updateWaveColor(delta) {
 		this.currentColor.r += delta * 0.5;
@@ -421,6 +420,8 @@ class WaveAttack {
 			water.tint = color;
 		}
 		this.waterBar.tint = color;
+		this.bgBack.tint = color;
+		this.bgFront.tint = color;
 	}
 	playScream () {
 		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
