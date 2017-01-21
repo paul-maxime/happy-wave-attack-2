@@ -13,19 +13,15 @@ class Human {
 	constructor () {
 		this.type = game.rnd.integerInRange(0, HumanType.COUNT);
 
-
-		this.sprite = game.add.sprite(0, 0, this.getTexture());
+		this.sprite = game.add.sprite(0, 0, this.getTexture(), null, waveAttack.humansGroup);
 		this.sprite.anchor.setTo(0.5, 0.5);
 		this.sprite.x = game.world.width + this.sprite.height;
 		let scale = game.rnd.integerInRange(30, 50) / 10;
 		this.sprite.scale.setTo(scale, scale);
 		this.sprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 		this.sprite.y = game.world.height - this.sprite.height / 2;
-		for (let i = 0; i < 32; ++i) {
-			this.sprite.moveDown();
-		}
 		this.setupAnimations();
-		this.speed = game.rnd.integerInRange(50, 200);
+		this.speed = game.rnd.integerInRange(125, 225);
 
 		let darkness = game.rnd.integerInRange(0, 100);
 		this.sprite.tint = 0xFFFFFF - (darkness << 16) - (darkness << 8) - darkness;
@@ -112,9 +108,18 @@ class WaveAttack {
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
 	}
 	create () {
-		waveAttack = this;
+		waveAttack = this
+;
+		this.bgBack = new Background('scrolling-back', 25, 10, 3);
+		this.bgFront = new Background('scrolling-front', 50, 4, 10);
 
-		this.wave = game.add.sprite(0, 0, 'wave');
+		this.humansGroup = this.add.group();
+		this.waterGroup = this.add.group();
+
+		this.humans = [];
+		this.humanSpawner = new HumanSpawner();
+
+		this.wave = game.add.sprite(0, 0, 'wave', null, this.waterGroup);
 		this.wave.anchor.setTo(0, 1);
 		this.wave.animations.add('swim');
 		this.wave.animations.play('swim', 15, true);
@@ -124,15 +129,12 @@ class WaveAttack {
 		this.wave.tint = 0x3070FF;
 		this.wave.y = game.world.height;
 
-		this.bgBack = new Background('scrolling-back', 50, 10, 3);
-		this.bgFront = new Background('scrolling-front', 100, 4, 10);
-
-		this.bgBack.tint = 0x3070FF;
-		//this.bgFront.tint = 0x3070FF;
+		this.bgBack.tint = 0x80C0FF;
+		this.bgFront.tint = 0x8090A0;
 
 		this.waters = [];
 		for (let i = 0; i < 10; ++i) {
-			let water = game.add.sprite(0, 0, 'water');
+			let water = game.add.sprite(0, 0, 'water', null, this.waterGroup);
 			water.anchor.setTo(0, 1);
 			water.scale.setTo(5, 5);
 			water.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
@@ -143,9 +145,6 @@ class WaveAttack {
 			water.y = game.world.height;
 			this.waters.push(water);
 		}
-
-		this.humans = [];
-		this.humanSpawner = new HumanSpawner();
 	}
 	update () {
 		let deltaTime = (game.time.elapsed / 1000);
