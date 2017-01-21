@@ -26,6 +26,9 @@ class Human {
 		}
 		this.setupAnimations();
 		this.speed = game.rnd.integerInRange(50, 200);
+
+		let darkness = game.rnd.integerInRange(0, 100);
+		this.sprite.tint = 0xFFFFFF - (darkness << 16) - (darkness << 8) - darkness;
 	}
 	getTexture() {
 		if (this.type == HumanType.MAN) {
@@ -62,6 +65,35 @@ class HumanSpawner {
 	}
 }
 
+class Background {
+	constructor (image, speed) {
+		this.speed = speed;
+		this.spriteA = game.add.sprite(0, 0, image);
+		this.spriteA.scale.setTo(9, 9);
+		this.spriteA.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+		this.spriteB = game.add.sprite(this.spriteA.width, 0, image);
+		this.spriteB.scale.setTo(9, 9);
+		this.spriteB.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+		this.spriteC = game.add.sprite(this.spriteA.width * 2, 0, image);
+		this.spriteC.scale.setTo(9, 9);
+		this.spriteC.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+	}
+	update (deltaTime) {
+		this.spriteA.x -= deltaTime * this.speed;
+		this.spriteB.x -= deltaTime * this.speed;
+		this.spriteC.x -= deltaTime * this.speed;
+		if (this.spriteA.x < -this.spriteA.width) {
+			this.spriteA.x += this.spriteA.width * 3;
+		}
+		if (this.spriteB.x < -this.spriteB.width) {
+			this.spriteB.x += this.spriteB.width * 3;
+		}
+		if (this.spriteC.x < -this.spriteC.width) {
+			this.spriteC.x += this.spriteC.width * 3;
+		}
+	}
+}
+
 class WaveAttack {
 	constructor () {
 		game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
@@ -75,6 +107,8 @@ class WaveAttack {
 		game.load.spritesheet('water', 'assets/water.png', 32, 32);
 		game.load.spritesheet('man', 'assets/monsieur.png', 32, 32);
 		game.load.spritesheet('woman', 'assets/madame_color.png', 32, 32);
+		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
+		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
 	}
 	create () {
 		waveAttack = this;
@@ -88,6 +122,9 @@ class WaveAttack {
 		this.wave.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 		this.wave.tint = 0x3070FF;
 		this.wave.y = game.world.height;
+
+		this.bgBack = new Background('scrolling-back', 50);
+		this.bgFront = new Background('scrolling-front', 100);
 
 		this.waters = [];
 		for (let i = 0; i < 10; ++i) {
@@ -117,6 +154,8 @@ class WaveAttack {
 		// if (this.wave.y > game.world.height - this.wave.height) {
 		// 	this.wave.y = game.world.height - this.wave.height;
 		// }
+		this.bgBack.update(deltaTime);
+		this.bgFront.update(deltaTime);
 		if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR)) {
 			this.wave.scale.y += delta;
 		} else {
@@ -129,7 +168,6 @@ class WaveAttack {
 			man.update(deltaTime);
 		}
 		this.humanSpawner.update(deltaTime);
-
 	}
 };
 
