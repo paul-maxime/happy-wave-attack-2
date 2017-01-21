@@ -4,6 +4,7 @@ var waveAttack;
 var game;
 
 const MAN_TEXTURE_COUNT = 4;
+const SCREAM_COUNT = 9;
 
 var HumanType = {
 	MAN : 0,
@@ -150,7 +151,7 @@ class WaveAttack {
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
 
-		for (let i = 1; i <= 8; ++i) {
+		for (let i = 1; i <= SCREAM_COUNT; ++i) {
 			game.load.audio('scream' + i, 'assets/FXScream' + i + '.ogg');
 			let audio = game.add.audio('scream' + i);
 			audio.allowMultiple = true;
@@ -239,7 +240,7 @@ class WaveAttack {
 		this.humanSpawner.update(deltaTime);
 	}
 	playScream () {
-		let index = game.rnd.integerInRange(1, 8);
+		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
 		game.sound.play('scream' + index);
 	}
 	playExplosion () {
