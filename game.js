@@ -3,21 +3,43 @@
 var waveAttack;
 var game;
 
+var HumanType = {
+	MAN : 0,
+	WOMAN : 1,
+	COUNT : 2
+};
+
 class Human {
 	constructor () {
-		this.sprite = game.add.sprite(0, 0, 'man');
+		this.type = game.rnd.integerInRange(0, HumanType.COUNT);
+
+
+		this.sprite = game.add.sprite(0, 0, this.getTexture());
 		this.sprite.anchor.setTo(0.5, 0.5);
 		this.sprite.x = game.world.width + this.sprite.height;
-		this.sprite.animations.add('default', [0, 1, 2, 3]);
 		let scale = game.rnd.integerInRange(30, 50) / 10;
 		this.sprite.scale.setTo(scale, scale);
-		this.sprite.animations.play('default', 15, true);
 		this.sprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 		this.sprite.y = game.world.height - this.sprite.height / 2;
 		for (let i = 0; i < 32; ++i) {
 			this.sprite.moveDown();
 		}
+		this.setupAnimations();
 		this.speed = game.rnd.integerInRange(50, 200);
+	}
+	getTexture() {
+		if (this.type == HumanType.MAN) {
+			return 'man';
+		}
+		return 'woman';
+	}
+	setupAnimations() {
+		if (this.type == HumanType.MAN) {
+			this.sprite.animations.add('default', [0, 1, 2, 3]);
+		} else {
+			this.sprite.animations.add('default', [0, 1, 2, 3, 4, 5, 6, 7]);
+		}
+		this.sprite.animations.play('default', 15, true);
 	}
 	update (deltaTime) {
 		this.sprite.x -= deltaTime * this.speed;
@@ -52,6 +74,7 @@ class WaveAttack {
 		game.load.spritesheet('wave', 'assets/wave.png', 32, 32);
 		game.load.spritesheet('water', 'assets/water.png', 32, 32);
 		game.load.spritesheet('man', 'assets/monsieur.png', 32, 32);
+		game.load.spritesheet('woman', 'assets/madame_color.png', 32, 32);
 	}
 	create () {
 		waveAttack = this;
