@@ -20,6 +20,11 @@ var HumanType = {
 	COUNT : 4
 };
 
+var GameState = {
+	INGAME : 0,
+	GAMEOVER : 1
+}
+
 class Human {
 	constructor() {
 		this.type = game.rnd.integerInRange(1, HumanType.COUNT) - 1;
@@ -243,6 +248,10 @@ class WaterBar {
 			this.removeWater(1 * deltaTime);
 		}
 		this.calcMask();
+		if (this.curValue == 0)
+		{
+			waveAttack.gameState = GameState.GAMEOVER;
+		}
 	}
 }
 
@@ -307,6 +316,9 @@ class WaveAttack {
 	create () {
 		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
+		this.gameState = GameState.INGAME;
+		this.restartTimer = 0;
+
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
 
@@ -354,9 +366,26 @@ class WaveAttack {
 
 		var style = { font: "bold 32px Pixeleris", fill: "#fff", boundsAlignH: "left"};
 		this.textScore = game.add.text(0, 0, "score     " + this.getStringScore(this.score, 8), style);
-//	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
 		this.textScore.x = game.world.width - 250;
 		this.textScore.y = 20;
+
+		var overlay = new Phaser.Graphics(this.game, 0, 0);
+		overlay.beginFill(0x000000, 0.7);
+		overlay.drawRect(0,0, game.world.width, game.world.height);
+		overlay.endFill();
+		this.deathOverlay = game.add.image(0, 0, overlay.generateTexture());
+		this.deathOverlay.visible = false;
+
+		this.gameOverText = game.add.text(0, 0, "GAME OVER", { font: "50px Pixeleris", fill: "red", boundsAlignH: "left"});
+		this.gameOverText.x = game.world.width / 2 - this.gameOverText.width / 2;
+		this.gameOverText.y = game.world.height / 2 - 100;		
+		this.gameOverText.visible = false;
+
+		this.restartText = game.add.text(0, 0, "PRESS SPACE TO RESTART", { font: "20px Pixeleris", fill: "white", boundsAlignH: "left"});
+		this.restartText.x = game.world.width / 2 - this.restartText.width / 2;
+		this.restartText.y = game.world.height / 2 + 50;		
+		this.restartText.visible = false;
 	}
 	updateScore(scoreToAdd){
 		this.score += scoreToAdd;
@@ -375,18 +404,33 @@ class WaveAttack {
 		// }
 		this.bgBack.update(deltaTime);
 		this.bgFront.update(deltaTime);
-		if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
-			this.waveUp = true;
-			this.wave.scale.y += delta;
-		} else {
-			this.wave.scale.y -= delta
-		}
-		if (this.wave.scale.y > 21.0) {
-			this.wave.scale.y = 21.0;
-		}
-		if (this.wave.scale.y < 3.0) {
+		if (this.gameState == GameState.INGAME) {
+			if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
+				this.waveUp = true;
+				this.wave.scale.y += delta;
+			} else {
+				this.wave.scale.y -= delta
+			}			
+			if (this.wave.scale.y > 21.0) {
+				this.wave.scale.y = 21.0;
+			}
+			if (this.wave.scale.y < 3.0) {
+				this.waveUp = false;
+				this.wave.scale.y = 3.0;
+			}
+		} else if (this.gameState == GameState.GAMEOVER) {
+			this.gameOverText.visible = true;
+			this.deathOverlay.visible = true;
 			this.waveUp = false;
-			this.wave.scale.y = 3.0;
+			this.wave.scale.y = 2.0;
+			this.restartTimer += deltaTime;
+			if (this.restartTimer >= 1) {
+				this.restartText.visible = true;
+				if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown)
+				{
+					this.create();
+				}
+			}
 		}
 		for (let i = 0; i < this.humans.length; ++i) {
 			this.humans[i].update(deltaTime);
@@ -396,7 +440,8 @@ class WaveAttack {
 			}
 		}
 		this.humanSpawner.update(deltaTime);
-		this.waterBar.update(deltaTime);
+		if (this.gameState == GameState.INGAME)
+			this.waterBar.update(deltaTime);
 		if (this.reelScore > this.score){
 			this.updateScore((((this.reelScore - this.score) / 10) | 0) + 1);
 		}
