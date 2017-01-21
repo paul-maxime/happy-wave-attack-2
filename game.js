@@ -4,6 +4,7 @@ var waveAttack;
 var game;
 
 const MAN_TEXTURE_COUNT = 4;
+const WOMAN_TEXTURE_COUNT = 3;
 const SCREAM_COUNT = 9;
 
 var HumanType = {
@@ -14,7 +15,7 @@ var HumanType = {
 
 class Human {
 	constructor() {
-		this.type = game.rnd.integerInRange(0, HumanType.COUNT);
+		this.type = game.rnd.integerInRange(1, HumanType.COUNT) - 1;
 
 		this.sprite = game.add.sprite(0, 0, this.getTexture(), null, waveAttack.humansGroup);
 		this.sprite.anchor.setTo(0.5, 0.5);
@@ -33,16 +34,17 @@ class Human {
 		this.rotationSpeed = 0;
 	}
 	getTexture() {
-		if (this.type == HumanType.MAN) {
+		if (this.type === HumanType.MAN) {
 			return 'man' + game.rnd.integerInRange(1, MAN_TEXTURE_COUNT);
+		} else if (this.type === HumanType.WOMAN) {
+			return 'woman' + game.rnd.integerInRange(1, WOMAN_TEXTURE_COUNT);
 		}
-		return 'woman';
 	}
 	setupAnimations() {
 		if (this.type == HumanType.MAN) {
 			this.sprite.animations.add('default', [0, 1, 2, 3]);
 			this.sprite.animations.add('dead', [4]);
-		} else {
+		} else if (this.type === HumanType.WOMAN) {
 			this.sprite.animations.add('default', [0, 1, 2, 3, 4, 5, 6, 7]);
 			this.sprite.animations.add('dead', [8]);
 		}
@@ -146,8 +148,10 @@ class WaveAttack {
 		for (let i = 1; i <= MAN_TEXTURE_COUNT; ++i) {
 			game.load.spritesheet('man' + i, 'assets/monsieur' + i + '.png', 32, 32);
 		}
+		for (let i = 1; i <= WOMAN_TEXTURE_COUNT; ++i) {
+			game.load.spritesheet('woman' + i, 'assets/madame_color' + i + '.png', 32, 32);
+		}
 
-		game.load.spritesheet('woman', 'assets/madame_color.png', 32, 32);
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
 
