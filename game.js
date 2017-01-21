@@ -82,8 +82,10 @@ class Human {
 		} else {
 			this.sprite.rotation += this.rotationSpeed * deltaTime;
 
-			this.sprite.scale.x -= 3 * deltaTime;
-			this.sprite.scale.y -= 3 * deltaTime;
+			if (this.sprite.scale.x > 0.1) {
+				this.sprite.scale.x -= 3 * deltaTime;
+				this.sprite.scale.y -= 3 * deltaTime;
+			}
 		}
 		if (this.sprite.x < -this.sprite.width || this.sprite.x > game.world.width + this.sprite.width ||
 			this.sprite.y < -this.sprite.height || this.sprite.y > game.world.height + this.sprite.height) {
