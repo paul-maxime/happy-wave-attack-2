@@ -162,6 +162,31 @@ class Background {
 	}
 }
 
+class WaterBar {
+	constructor (scale, posX, posY, defaultColor) {
+		this.maxValue = 100;
+		this.curValue = this.maxValue;
+
+		this.backgroundSprite = game.add.sprite(posX, posY, 'life_bar_background', null, waveAttack.uiGroup);
+		this.backgroundSprite.scale.setTo(scale, scale);
+		this.backgroundSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+
+		this.middleSprite = game.add.sprite(posX, posY, 'life_bar_middle', null, waveAttack.uiGroup);
+		this.middleSprite.scale.setTo(scale, scale);
+		this.middleSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+		this.middleSprite.animations.add('default');
+		this.middleSprite.animations.play('default', 15, true);
+		this.middleSprite.tint = defaultColor;
+
+		this.borderSprite = game.add.sprite(posX, posY, 'life_bar_border', null, waveAttack.uiGroup);
+		this.borderSprite.scale.setTo(scale, scale);
+		this.borderSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+	}
+	set tint (value) {
+		this.middleSprite.tint = value;
+	}
+}
+
 class WaveAttack {
 	constructor () {
 		game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
@@ -190,6 +215,10 @@ class WaveAttack {
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
 
+		game.load.image('life_bar_border', 'assets/life_bar_border.png', 64, 16);
+		game.load.image('life_bar_background', 'assets/life_bar_background.png', 64, 16);
+		game.load.spritesheet('life_bar_middle', 'assets/life_bar_middle.png', 64, 16);
+
 		for (let i = 1; i <= SCREAM_COUNT; ++i) {
 			game.load.audio('scream' + i, 'assets/FXScream' + i + '.ogg');
 			let audio = game.add.audio('scream' + i);
@@ -208,7 +237,9 @@ class WaveAttack {
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
 
-		this.music = game.add.audio('song', 0.6, true);
+		this.waterBar = new WaterBar(4, 8, 8, 0x3070FF);
+
+		this.music = game.add.audio('song', 0.7, true);
 		this.music.play();
 
 		this.humansGroup = game.add.group();
