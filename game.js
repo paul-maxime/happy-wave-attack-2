@@ -96,7 +96,7 @@ class Human {
 		if (this.sprite.x < -this.sprite.width || this.sprite.x > game.world.width + this.sprite.width ||
 			this.sprite.y < -this.sprite.height || this.sprite.y > game.world.height + this.sprite.height) {
 			if (this.dying) {
-				waveAttack.playCoin();
+				this.eatenBySea();
 			}
 			this.remove();
 		}
@@ -119,6 +119,10 @@ class Human {
 
 		waveAttack.waterBar.addWater(10);
 		waveAttack.updateScore(5);
+	}
+	eatenBySea() {
+		waveAttack.playCoin();
+
 	}
 	dieAsEnemy() {
 		waveAttack.playExplosion();
@@ -371,13 +375,13 @@ class WaveAttack {
 			this.waveUp = true;
 			this.wave.scale.y += delta;
 		} else {
-			this.waveUp = false;
 			this.wave.scale.y -= delta
 		}
 		if (this.wave.scale.y > 21.0) {
 			this.wave.scale.y = 21.0;
 		}
 		if (this.wave.scale.y < 3.0) {
+			this.waveUp = false;
 			this.wave.scale.y = 3.0;
 		}
 		for (let i = 0; i < this.humans.length; ++i) {
@@ -404,6 +408,6 @@ class WaveAttack {
 	}
 };
 
-window.onload = function() {
+$(document).ready(function () {
 	waveAttack = new WaveAttack();
-};
+});
