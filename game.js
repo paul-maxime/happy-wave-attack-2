@@ -4,16 +4,22 @@ var waveAttack;
 var game;
 
 const MAN_TEXTURE_COUNT = 4;
+const WOMAN_TEXTURE_COUNT = 3;
+const MAN_FLY_TEXTURE_COUNT = 3;
+const MISSILE_FAN_TEXTURE_COUNT = 3;
+const SCREAM_COUNT = 9;
 
 var HumanType = {
 	MAN : 0,
 	WOMAN : 1,
-	COUNT : 2
+	MAN_FLY : 2,
+	MISSILE_FAN : 3,
+	COUNT : 4
 };
 
 class Human {
 	constructor() {
-		this.type = game.rnd.integerInRange(0, HumanType.COUNT);
+		this.type = game.rnd.integerInRange(1, HumanType.COUNT) - 1;
 
 		this.sprite = game.add.sprite(0, 0, this.getTexture(), null, waveAttack.humansGroup);
 		this.sprite.anchor.setTo(0.5, 0.5);
@@ -21,7 +27,8 @@ class Human {
 		let scale = game.rnd.integerInRange(30, 50) / 10;
 		this.sprite.scale.setTo(scale, scale);
 		this.sprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-		this.sprite.y = game.world.height - this.sprite.height / 2;
+
+		this.setupPosition();
 		this.setupAnimations();
 
 		this.dying = false;
@@ -32,18 +39,32 @@ class Human {
 		this.rotationSpeed = 0;
 	}
 	getTexture() {
-		if (this.type == HumanType.MAN) {
+		if (this.type === HumanType.MAN) {
 			return 'man' + game.rnd.integerInRange(1, MAN_TEXTURE_COUNT);
+		} else if (this.type === HumanType.WOMAN) {
+			return 'woman' + game.rnd.integerInRange(1, WOMAN_TEXTURE_COUNT);
+		} else if (this.type === HumanType.MAN_FLY) {
+			return 'man_fly' + game.rnd.integerInRange(1, MAN_FLY_TEXTURE_COUNT);
+		} else if (this.type === HumanType.MISSILE_FAN) {
+			return 'missile_fan' + game.rnd.integerInRange(1, MISSILE_FAN_TEXTURE_COUNT);
 		}
-		return 'woman';
+	}
+	setupPosition() {
+		if (this.type === HumanType.MAN || this.type == HumanType.WOMAN) {
+			this.sprite.y = game.world.height - this.sprite.height / 2;
+		} else {
+			this.sprite.y = game.rnd.integerInRange(100, game.world.height - this.sprite.height);
+		}
 	}
 	setupAnimations() {
-		if (this.type == HumanType.MAN) {
+		if (this.type == HumanType.MAN || this.type === HumanType.MAN_FLY) {
 			this.sprite.animations.add('default', [0, 1, 2, 3]);
 			this.sprite.animations.add('dead', [4]);
-		} else {
+		} else if (this.type === HumanType.WOMAN) {
 			this.sprite.animations.add('default', [0, 1, 2, 3, 4, 5, 6, 7]);
 			this.sprite.animations.add('dead', [8]);
+		} else if (this.type === HumanType.MISSILE_FAN) {
+			this.sprite.animations.add('default', [0, 1, 2, 3]);
 		}
 		this.sprite.animations.play('default', 15, true);
 	}
@@ -51,21 +72,12 @@ class Human {
 		this.sprite.x += deltaTime * this.speedX;
 		this.sprite.y += deltaTime * this.speedY;
 		if (!this.dying) {
-			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y < waveAttack.waveHeight) {
-				waveAttack.playScream();
-				this.dying = true;
-
-				this.rotationSpeed = game.rnd.realInRange(6.0, 9.0);
-				if (game.rnd.integerInRange(1, 2) === 1) {
-					this.rotationSpeed *= -1;
+			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y > (game.world.height - waveAttack.wave.height / 1.6)) {
+				if (this.type === HumanType.MISSILE_FAN) {
+					this.dieAsEnemy();
+				} else {
+					this.dieAsHuman();
 				}
-
-				let speed = new Phaser.Point(game.rnd.realInRange(0.0, 1.0), game.rnd.realInRange(-1.0, 0.0));
-				speed.normalize();
-				this.speedX = speed.x * 500;
-				this.speedY = speed.y * 500;
-
-				this.sprite.animations.play('dead');
 			}
 		} else {
 			this.sprite.rotation += this.rotationSpeed * deltaTime;
@@ -77,6 +89,26 @@ class Human {
 			this.sprite.y < -this.sprite.height || this.sprite.y > game.world.height + this.sprite.height) {
 			this.remove();
 		}
+	}
+	dieAsHuman() {
+		waveAttack.playScream();
+		this.dying = true;
+
+		this.rotationSpeed = game.rnd.realInRange(6.0, 9.0);
+		if (game.rnd.integerInRange(1, 2) === 1) {
+			this.rotationSpeed *= -1;
+		}
+
+		let speed = new Phaser.Point(game.rnd.realInRange(0.0, 1.0), game.rnd.realInRange(-1.0, 0.0));
+		speed.normalize();
+		this.speedX = speed.x * 500;
+		this.speedY = speed.y * 500;
+
+		this.sprite.animations.play('dead');
+	}
+	dieAsEnemy() {
+		waveAttack.playExplosion();
+		this.remove();
 	}
 	remove() {
 		this.sprite.kill();
@@ -130,6 +162,30 @@ class Background {
 	}
 }
 
+class WaterBar {
+	constructor (scale, posX, posY, defaultColor) {
+		this.maxValue = 100;
+		this.curValue = this.maxValue;
+
+		this.backgroundSprite = game.add.sprite(posX, posY, 'life_bar_background', null, waveAttack.uiGroup);
+		this.backgroundSprite.scale.setTo(scale, scale);
+		this.backgroundSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+
+		this.middleSprite = game.add.sprite(posX, posY, 'life_bar_middle', null, waveAttack.uiGroup);
+		this.middleSprite.scale.setTo(scale, scale);
+		this.middleSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+		this.middleSprite.animations.add('default');
+		this.middleSprite.animations.play('default', 15, true);
+		this.middleSprite.tint = defaultColor;
+
+		this.borderSprite = game.add.sprite(posX, posY, 'life_bar_border', null, waveAttack.uiGroup);
+		this.borderSprite.scale.setTo(scale, scale);
+		this.borderSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+	}
+	set tint (value) {
+		this.middleSprite.tint = value;
+	}
+}
 
 class WaveAttack {
 	constructor () {
@@ -163,12 +219,24 @@ class WaveAttack {
 		for (let i = 1; i <= MAN_TEXTURE_COUNT; ++i) {
 			game.load.spritesheet('man' + i, 'assets/monsieur' + i + '.png', 32, 32);
 		}
+		for (let i = 1; i <= WOMAN_TEXTURE_COUNT; ++i) {
+			game.load.spritesheet('woman' + i, 'assets/madame_color' + i + '.png', 32, 32);
+		}
+		for (let i = 1; i <= WOMAN_TEXTURE_COUNT; ++i) {
+			game.load.spritesheet('man_fly' + i, 'assets/man_fly' + i + '.png', 32, 32);
+		}
+		for (let i = 1; i <= WOMAN_TEXTURE_COUNT; ++i) {
+			game.load.spritesheet('missile_fan' + i, 'assets/missile_fan' + i + '.png', 32, 32);
+		}
 
-		game.load.spritesheet('woman', 'assets/madame_color.png', 32, 32);
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
 
-		for (let i = 1; i <= 8; ++i) {
+		game.load.image('life_bar_border', 'assets/life_bar_border.png', 64, 16);
+		game.load.image('life_bar_background', 'assets/life_bar_background.png', 64, 16);
+		game.load.spritesheet('life_bar_middle', 'assets/life_bar_middle.png', 64, 16);
+
+		for (let i = 1; i <= SCREAM_COUNT; ++i) {
 			game.load.audio('scream' + i, 'assets/FXScream' + i + '.ogg');
 			let audio = game.add.audio('scream' + i);
 			audio.allowMultiple = true;
@@ -186,7 +254,9 @@ class WaveAttack {
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
 
-		this.music = game.add.audio('song', 0.6, true);
+		this.waterBar = new WaterBar(4, 8, 8, 0x3070FF);
+
+		this.music = game.add.audio('song', 0.7, true);
 		this.music.play();
 
 		this.humansGroup = game.add.group();
@@ -257,7 +327,6 @@ class WaveAttack {
 		if (this.wave.scale.y < 3.0) {
 			this.wave.scale.y = 3.0;
 		}
-		this.waveHeight = this.wave.height * this.wave.scale.y;
 		for (let i = 0; i < this.humans.length; ++i) {
 			this.humans[i].update(deltaTime);
 			if (this.humans[i].removed) {
@@ -268,7 +337,7 @@ class WaveAttack {
 		this.humanSpawner.update(deltaTime);
 	}
 	playScream () {
-		let index = game.rnd.integerInRange(1, 8);
+		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
 		game.sound.play('scream' + index);
 	}
 	playExplosion () {
