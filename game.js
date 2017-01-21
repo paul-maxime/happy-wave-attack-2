@@ -189,6 +189,8 @@ class WaterBar {
 		this.maskOffsetStart = 23;
 		this.maskOffsetEnd = -5;
 
+		this.mask = new PIXI.Graphics();
+
 		this.backgroundSprite = game.add.sprite(posX, posY, 'life_bar_background', null, waveAttack.uiGroup);
 		this.backgroundSprite.scale.setTo(scale, scale);
 		this.backgroundSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
@@ -207,18 +209,19 @@ class WaterBar {
 	}
 	calcMask () {
 		var perc = this.curValue / this.maxValue;
-		var mask = new PIXI.Graphics();
-		mask.position.x = 0;
-		mask.position.y = 0;
-		mask.beginFill(0, 1);
-		mask.moveTo(this.maskOffsetStart, 0);
-		mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, 0);
-		mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, this.middleSprite.height);
-		mask.lineTo(this.maskOffsetStart, this.middleSprite.height);
-		mask.lineTo(this.maskOffsetStart, 0);
-		mask.endFill();
 
-		this.middleSprite.mask = mask;
+		this.mask.position.x = 0;
+		this.mask.position.y = 0;
+		this.mask.clear();
+		this.mask.beginFill(0, 1);
+		this.mask.moveTo(this.maskOffsetStart, 0);
+		this.mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, 0);
+		this.mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, this.middleSprite.height);
+		this.mask.lineTo(this.maskOffsetStart, this.middleSprite.height);
+		this.mask.lineTo(this.maskOffsetStart, 0);
+		this.mask.endFill();
+
+		this.middleSprite.mask = this.mask;
 	}
 	set tint (value) {
 		this.middleSprite.tint = value;
