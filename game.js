@@ -41,7 +41,7 @@ class Human {
 	}
 	update (deltaTime) {
 		this.sprite.x -= deltaTime * this.speed;
-		if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.y < waveAttack.waveHeight) {
+		if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y < waveAttack.waveHeight) {
 			waveAttack.playScream();
 			this.remove();
 		}
@@ -122,11 +122,22 @@ class WaveAttack {
 			let audio = game.add.audio('scream' + i);
 			audio.allowMultiple = true;
 		}
+
+		for (let i = 1; i <= 3; ++i) {
+			game.load.audio('explosion' + i, 'assets/FXexplosion' + i + '.ogg');
+			let audio = game.add.audio('explosion' + i);
+			audio.allowMultiple = true;
+		}
+
+		game.load.audio('song', 'assets/song.ogg');
 	}
 	create () {
 		waveAttack = this;
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
+
+		this.music = game.add.audio('song', 0.3, true);
+		this.music.play();
 
 		this.humansGroup = game.add.group();
 		this.waterGroup = game.add.group();
@@ -198,6 +209,10 @@ class WaveAttack {
 	playScream () {
 		let index = game.rnd.integerInRange(1, 8);
 		game.sound.play('scream' + index);
+	}
+	playExplosion () {
+		let index = game.rnd.integerInRange(1, 3);
+		game.sound.play('explosion' + index);
 	}
 };
 
