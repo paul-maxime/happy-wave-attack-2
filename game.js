@@ -96,7 +96,7 @@ class Human {
 		if (this.sprite.x < -this.sprite.width || this.sprite.x > game.world.width + this.sprite.width ||
 			this.sprite.y < -this.sprite.height || this.sprite.y > game.world.height + this.sprite.height) {
 			if (this.dying) {
-				waveAttack.playCoin();
+				this.eatenBySea();
 			}
 			this.remove();
 		}
@@ -118,6 +118,10 @@ class Human {
 		this.sprite.animations.play('dead');
 
 		waveAttack.waterBar.addWater(10);
+	}
+	eatenBySea() {
+		waveAttack.playCoin();
+
 	}
 	dieAsEnemy() {
 		waveAttack.playExplosion();
