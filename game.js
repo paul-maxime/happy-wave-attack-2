@@ -9,7 +9,7 @@ class WaveAttack {
 		});
 	}
 	preload () {
-		game.load.spritesheet('wave', 'wave.png', 32, 32);
+		game.load.spritesheet('wave', 'assets/wave.png', 32, 32);
 	}
 	create () {
 		this.wave = game.add.sprite(0, 0, 'wave');
