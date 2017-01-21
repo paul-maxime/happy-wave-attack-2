@@ -171,6 +171,7 @@ class WaveAttack {
 			water.y = game.world.height;
 			this.waters.push(water);
 		}
+		this.score = 0;
 	}
 	update () {
 		let deltaTime = (game.time.elapsed / 1000);
