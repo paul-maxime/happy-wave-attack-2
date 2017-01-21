@@ -118,10 +118,12 @@ class Human {
 		this.sprite.animations.play('dead');
 
 		waveAttack.waterBar.addWater(10);
+
+		waveAttack.humansKilled += 1;
 	}
 	eatenBySea() {
 		waveAttack.playCoin();
-
+		waveAttack.updateWaveColor(5);
 	}
 	dieAsEnemy() {
 		waveAttack.playExplosion();
@@ -139,7 +141,7 @@ class HumanSpawner {
 		this.spawnNextHuman();
 	}
 	spawnNextHuman () {
-		this.nextHuman = game.rnd.integerInRange(300, 2000);
+		this.nextHuman = game.rnd.integerInRange(300, 500);
 		waveAttack.humans.push(new Human());
 	}
 	update (deltaTime) {
@@ -362,6 +364,9 @@ class WaveAttack {
 	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
 		this.textScore.x = game.world.width - 220;
 		this.textScore.y = 20;
+
+		this.currentColor = {r: 0x30, g: 0x70, b: 0xFF};
+		this.humansKilled = 0;
 	}
 	updateScore(scoreToAdd){
 		this.score += scoreToAdd;
@@ -402,6 +407,20 @@ class WaveAttack {
 		}
 		this.humanSpawner.update(deltaTime);
 		this.waterBar.update(deltaTime);
+	}
+	updateWaveColor(delta) {
+		this.currentColor.r += delta * 0.5;
+		if (this.currentColor.r > 255) this.currentColor.r = 255;
+		this.currentColor.b -= delta * 1.0;
+		if (this.currentColor.b < 0) this.currentColor.b = 0;
+		this.currentColor.g -= delta * 1.5;
+		if (this.currentColor.g < 0) this.currentColor.g = 0;
+		let color = (this.currentColor.r << 16) + (this.currentColor.g << 8) + this.currentColor.b;
+		this.wave.tint = color;
+		for (let water of this.waters) {
+			water.tint = color;
+		}
+		this.waterBar.tint = color;
 	}
 	playScream () {
 		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
