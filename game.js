@@ -3,6 +3,8 @@
 var waveAttack;
 var game;
 
+const MAN_TEXTURE_COUNT = 4;
+
 var HumanType = {
 	MAN : 0,
 	WOMAN : 1,
@@ -10,7 +12,7 @@ var HumanType = {
 };
 
 class Human {
-	constructor () {
+	constructor() {
 		this.type = game.rnd.integerInRange(0, HumanType.COUNT);
 
 		this.sprite = game.add.sprite(0, 0, this.getTexture(), null, waveAttack.humansGroup);
@@ -21,35 +23,62 @@ class Human {
 		this.sprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 		this.sprite.y = game.world.height - this.sprite.height / 2;
 		this.setupAnimations();
-		this.speed = game.rnd.integerInRange(125, 180);
 
+		this.dying = false;
 		this.removed = false;
+
+		this.speedX = -game.rnd.integerInRange(125, 180);
+		this.speedY = 0;
+		this.rotationSpeed = 0;
 	}
 	getTexture() {
 		if (this.type == HumanType.MAN) {
-			return 'man';
+			return 'man' + game.rnd.integerInRange(1, MAN_TEXTURE_COUNT);
 		}
 		return 'woman';
 	}
 	setupAnimations() {
 		if (this.type == HumanType.MAN) {
 			this.sprite.animations.add('default', [0, 1, 2, 3]);
+			this.sprite.animations.add('dead', [4]);
 		} else {
 			this.sprite.animations.add('default', [0, 1, 2, 3, 4, 5, 6, 7]);
+			this.sprite.animations.add('dead', [8]);
 		}
 		this.sprite.animations.play('default', 15, true);
 	}
-	update (deltaTime) {
-		this.sprite.x -= deltaTime * this.speed;
-		if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y < waveAttack.waveHeight) {
-			waveAttack.playScream();
-			this.remove();
+	update(deltaTime) {
+		this.sprite.x += deltaTime * this.speedX;
+		this.sprite.y += deltaTime * this.speedY;
+		if (!this.dying) {
+			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y < waveAttack.waveHeight) {
+				waveAttack.playScream();
+				this.dying = true;
+
+				this.rotationSpeed = game.rnd.realInRange(6.0, 9.0);
+				if (game.rnd.integerInRange(1, 2) === 1) {
+					this.rotationSpeed *= -1;
+				}
+
+				let speed = new Phaser.Point(game.rnd.realInRange(0.0, 1.0), game.rnd.realInRange(-1.0, 0.0));
+				speed.normalize();
+				this.speedX = speed.x * 500;
+				this.speedY = speed.y * 500;
+
+				this.sprite.animations.play('dead');
+			}
+		} else {
+			this.sprite.rotation += this.rotationSpeed * deltaTime;
+
+			this.sprite.scale.x -= 3 * deltaTime;
+			this.sprite.scale.y -= 3 * deltaTime;
 		}
-		if (this.sprite.x < -this.sprite.width) {
+		if (this.sprite.x < -this.sprite.width || this.sprite.x > game.world.width + this.sprite.width ||
+			this.sprite.y < -this.sprite.height || this.sprite.y > game.world.height + this.sprite.height) {
 			this.remove();
 		}
 	}
-	remove () {
+	remove() {
 		this.sprite.kill();
 		this.removed = true;
 	}
@@ -112,7 +141,11 @@ class WaveAttack {
 	preload () {
 		game.load.spritesheet('wave', 'assets/wave.png', 32, 32);
 		game.load.spritesheet('water', 'assets/water.png', 32, 32);
-		game.load.spritesheet('man', 'assets/monsieur.png', 32, 32);
+
+		for (let i = 1; i <= MAN_TEXTURE_COUNT; ++i) {
+			game.load.spritesheet('man' + i, 'assets/monsieur' + i + '.png', 32, 32);
+		}
+
 		game.load.spritesheet('woman', 'assets/madame_color.png', 32, 32);
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
@@ -132,11 +165,10 @@ class WaveAttack {
 		game.load.audio('song', 'assets/song.ogg');
 	}
 	create () {
-		waveAttack = this;
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
 
-		this.music = game.add.audio('song', 0.3, true);
+		this.music = game.add.audio('song', 0.6, true);
 		this.music.play();
 
 		this.humansGroup = game.add.group();
@@ -218,5 +250,5 @@ class WaveAttack {
 };
 
 window.onload = function() {
-	new WaveAttack();
+	waveAttack = new WaveAttack();
 };
