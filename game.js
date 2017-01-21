@@ -330,7 +330,6 @@ class WaveAttack {
 		this.wave.scale.x = 5.0;
 		this.wave.scale.y = 10.0;
 		this.wave.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-		this.wave.tint = 0x3070FF;
 		this.wave.y = game.world.height;
 
 		this.waveUp = false;
@@ -347,7 +346,6 @@ class WaveAttack {
 			water.animations.add('default');
 			water.animations.play('default', 15, true);
 			water.x = water.width * i;
-			water.tint = 0x3070FF;
 			water.y = game.world.height;
 			this.waters.push(water);
 		}
@@ -361,6 +359,7 @@ class WaveAttack {
 		this.textScore.y = 20;
 
 		this.currentColor = {r: 0x30, g: 0x70, b: 0xFF};
+		this.currentBackColor = {r: 0x80, g: 0x90, b: 0xA0};
 		this.updateWaveColor(0);
 		this.humansKilled = 0;
 	}
@@ -420,8 +419,15 @@ class WaveAttack {
 			water.tint = color;
 		}
 		this.waterBar.tint = color;
+
+		this.currentBackColor.r += delta * 0.2;
+		if (this.currentBackColor.r > 255) this.currentBackColor.r = 255;
+		this.currentBackColor.b -= delta * 0.4;
+		if (this.currentBackColor.b < 0) this.currentBackColor.b = 0;
+		this.currentBackColor.g -= delta * 0.6;
+		if (this.currentBackColor.g < 0) this.currentBackColor.g = 0;
+		color = (this.currentBackColor.r << 16) + (this.currentBackColor.g << 8) + this.currentBackColor.b;
 		this.bgBack.tint = color;
-		this.bgFront.tint = color;
 	}
 	playScream () {
 		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
