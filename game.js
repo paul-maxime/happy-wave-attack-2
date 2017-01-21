@@ -7,7 +7,10 @@ const MAN_TEXTURE_COUNT = 4;
 const WOMAN_TEXTURE_COUNT = 3;
 const MAN_FLY_TEXTURE_COUNT = 3;
 const MISSILE_FAN_TEXTURE_COUNT = 3;
+
 const SCREAM_COUNT = 9;
+const EXPLOSION_COUNT = 3;
+const COIN_COUNT = 3;
 
 var HumanType = {
 	MAN : 0,
@@ -81,14 +84,20 @@ class Human {
 			}
 		} else {
 			this.sprite.rotation += this.rotationSpeed * deltaTime;
+			this.speedY += 500 * deltaTime;
 
 			if (this.sprite.scale.x > 0.1) {
-				this.sprite.scale.x -= 3 * deltaTime;
-				this.sprite.scale.y -= 3 * deltaTime;
+				this.sprite.scale.x -= 2 * deltaTime;
+				this.sprite.scale.y -= 2 * deltaTime;
 			}
+
+			this.sprite.tint = 0xC03030;
 		}
 		if (this.sprite.x < -this.sprite.width || this.sprite.x > game.world.width + this.sprite.width ||
 			this.sprite.y < -this.sprite.height || this.sprite.y > game.world.height + this.sprite.height) {
+			if (this.dying) {
+				waveAttack.playCoin();
+			}
 			this.remove();
 		}
 	}
@@ -126,7 +135,7 @@ class HumanSpawner {
 		this.spawnNextHuman();
 	}
 	spawnNextHuman () {
-		this.nextHuman = game.rnd.integerInRange(500, 3000);
+		this.nextHuman = game.rnd.integerInRange(300, 2000);
 		waveAttack.humans.push(new Human());
 	}
 	update (deltaTime) {
@@ -274,9 +283,14 @@ class WaveAttack {
 			audio.allowMultiple = true;
 		}
 
-		for (let i = 1; i <= 3; ++i) {
+		for (let i = 1; i <= EXPLOSION_COUNT; ++i) {
 			game.load.audio('explosion' + i, 'assets/FXexplosion' + i + '.ogg');
 			let audio = game.add.audio('explosion' + i);
+			audio.allowMultiple = true;
+		}
+		for (let i = 1; i <= COIN_COUNT; ++i) {
+			game.load.audio('coin' + i, 'assets/FXcoin' + i + '.ogg');
+			let audio = game.add.audio('coin' + i);
 			audio.allowMultiple = true;
 		}
 
@@ -380,8 +394,12 @@ class WaveAttack {
 		game.sound.play('scream' + index);
 	}
 	playExplosion () {
-		let index = game.rnd.integerInRange(1, 3);
+		let index = game.rnd.integerInRange(1, EXPLOSION_COUNT);
 		game.sound.play('explosion' + index);
+	}
+	playCoin () {
+		let index = game.rnd.integerInRange(1, COIN_COUNT);
+		game.sound.play('coin' + index, 0.3);
 	}
 };
 
