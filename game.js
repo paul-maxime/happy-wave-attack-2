@@ -187,6 +187,10 @@ class WaveAttack extends Phaser.Game {
 		this.titleText.y = game.world.height / 2 - 200;
 		this.titleText.setShadow(2, 3, 'rgba(0,0,0,0.5)', 2);
 
+		this.ggjText = game.add.text(0, 0, "GLOBAL GAME JAME 2017", { font: "20px Pixelade", fill: "white", boundsAlignH: "left"});
+		this.ggjText.x = game.world.width - this.ggjText.width - 10;
+		this.ggjText.y = game.world.height - this.ggjText.height - 2;
+
 		this.gameOverText = game.add.text(0, 0, "GAME OVER", { font: "80px Pixelade", fill: "red", boundsAlignH: "left"});
 		this.gameOverText.x = game.world.width / 2 - this.gameOverText.width / 2;
 		this.gameOverText.y = game.world.height / 2 - 150;
@@ -218,6 +222,7 @@ class WaveAttack extends Phaser.Game {
 	    this.titleText.visible = false;
 	    this.numberText.visible = false;
 	    this.titleOverlay.visible = false;
+	    this.ggjText.visible = false;
 	    this.textScore.visible = true;
 	    this.timerText.visible = true;
 
