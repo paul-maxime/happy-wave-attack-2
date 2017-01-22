@@ -195,7 +195,8 @@ class WaveAttack extends Phaser.Game {
 		        this.start();
 		    }
 		} else if (this.gameState == GameState.INGAME) {
-			if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
+			if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown ||
+				(game.building && game.building.isBlocking)) {
 				this.waveUp = true;
 				this.wave.y -= delta;
 			} else {
@@ -208,6 +209,7 @@ class WaveAttack extends Phaser.Game {
 			if (this.wave.y < game.world.height) {
 				this.wave.y = game.world.height;
 			}
+
 		} else if (this.gameState == GameState.GAMEOVER) {
 			this.gameOverText.visible = true;
 			this.deathOverlay.visible = true;
@@ -293,6 +295,9 @@ class WaveAttack extends Phaser.Game {
 	playCoin () {
 		let index = game.rnd.integerInRange(1, COIN_COUNT);
 		game.sound.play('coin' + index, 0.3);
+	}
+	isSpaceDown () {
+		return game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown;
 	}
 };
 
