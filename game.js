@@ -95,6 +95,9 @@ class WaveAttack extends Phaser.Game {
 
 		this.waterBar = new WaterBar(4, 8, 8, 0x3070FF);
 
+		if (this.music) {
+			this.music.stop();
+		}
 		this.music = game.add.audio('song', 0.7, true);
 		this.music.play();
 
