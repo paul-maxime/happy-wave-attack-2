@@ -6,6 +6,7 @@ class HumanSpawner {
 		this.nextHuman = 0;
 		this.nextEnemy = 0;
 		this.nextBuilding = 2000;
+		this.isSpawnable = false;
 	}
 	spawnNextHuman () {
 		let frequency = 10000 / ((this.totalTime / 20) + 1);
@@ -21,7 +22,15 @@ class HumanSpawner {
 		this.nextBuilding = 20000;
 		waveAttack.building = new Building();
 	}
-	update (deltaTime) {
+	activateSpawn() {
+	    this.isSpawnable = true;
+	}
+	desactivateSpawn() {
+	    this.isSpawnable = false;
+	}
+	update(deltaTime) {
+	    if (!this.isSpawnable)
+	        return;
 		this.totalTime += deltaTime;
 		this.nextHuman -= deltaTime * 1000;
 		if (this.nextHuman < 0) {
