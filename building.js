@@ -43,7 +43,7 @@ class Building
 	}
 	setUpBoooom() {
 	    this.boooomSprite.anchor.setTo(0.5, 1);
-	    this.boooomSprite.scale.setTo(this.scale, this.scale);
+	    this.boooomSprite.scale.setTo(this.scale + 5, this.scale + 5);
 	    this.boooomSprite.x = this.sprite.x + 60;
 	    this.boooomSprite.y = game.world.height - 40;
 	    this.boooomSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
