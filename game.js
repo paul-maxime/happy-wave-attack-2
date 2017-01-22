@@ -143,7 +143,7 @@ class WaveAttack extends Phaser.Game {
 		this.timer = 0;
 
 		var style = { font: "40px Pixelade", fill: "#fff", boundsAlignH: "left"};
-		this.textScore = game.add.text(0, 20, "score     " + this.getStringScore(this.score, 8), style);
+		this.textScore = game.add.text(0, 20, "SCORE     " + this.getStringScore(this.score, 8), style);
 	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
 		this.textScore.x = game.world.width - 290;
 		this.textScore.visible = false;
