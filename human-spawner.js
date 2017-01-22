@@ -5,16 +5,21 @@ class HumanSpawner {
 		this.totalTime = 0;
 		this.nextHuman = 0;
 		this.nextEnemy = 0;
+		this.nextBuilding = 2000;
 	}
 	spawnNextHuman () {
 		let frequency = 10000 / ((this.totalTime / 20) + 1);
 		this.nextHuman = game.rnd.integerInRange(frequency / 2, frequency);
-		waveAttack.humans.push(new Human(false));
+		waveAttack.humans.push(new Human(game.rnd.integerInRange(HumanType.MAN, HumanType.MAN_FLY)));
 	}
 	spawnNextEnemy () {
 		let frequency = 10000 / ((game.humansKilled + 1) / 2);
 		this.nextEnemy = game.rnd.integerInRange(frequency / 2, frequency);
-		waveAttack.humans.push(new Human(true));
+		waveAttack.humans.push(new Human(HumanType.MISSILE_FAN));
+	}
+	spawnNextBuilding () {
+		this.nextBuilding = 20000;
+		waveAttack.building = new Building();
 	}
 	update (deltaTime) {
 		this.totalTime += deltaTime;
@@ -27,6 +32,14 @@ class HumanSpawner {
 			if (this.nextEnemy < 0) {
 				this.spawnNextEnemy();
 			}
+		}
+		if (!game.building) {
+			this.nextBuilding -= deltaTime * 1000;
+			if (this.nextBuilding < 0) {
+				this.spawnNextBuilding();
+			}
+		} else {
+			game.building.update(deltaTime);
 		}
 	}
 }

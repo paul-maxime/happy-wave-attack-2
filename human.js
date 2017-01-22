@@ -4,17 +4,12 @@ var HumanType = {
 	MAN : 0,
 	WOMAN : 1,
 	MAN_FLY : 2,
-	MISSILE_FAN : 3,
-	COUNT : 4
+	MISSILE_FAN : 3
 };
 
 class Human {
-	constructor(isEnemy) {
-		if (isEnemy) {
-			this.type = HumanType.MISSILE_FAN;
-		} else {
-			this.type = game.rnd.integerInRange(1, HumanType.COUNT - 1) - 1;
-		}
+	constructor(type) {
+		this.type = type;
 
 		this.sprite = game.add.sprite(0, 0, this.getTexture(), null, waveAttack.humansGroup);
 		this.sprite.anchor.setTo(0.5, 0.5);

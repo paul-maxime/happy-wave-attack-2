@@ -7,6 +7,7 @@ const MAN_TEXTURE_COUNT = 4;
 const WOMAN_TEXTURE_COUNT = 3;
 const MAN_FLY_TEXTURE_COUNT = 3;
 const MISSILE_FAN_TEXTURE_COUNT = 3;
+const BUILDING_TEXTURE_COUNT = 3;
 
 const SCREAM_COUNT = 9;
 const EXPLOSION_COUNT = 3;
@@ -41,6 +42,9 @@ class WaveAttack extends Phaser.Game {
 		}
 		for (let i = 1; i <= WOMAN_TEXTURE_COUNT; ++i) {
 			game.load.spritesheet('missile_fan' + i, 'assets/missile_fan' + i + '.png', 32, 32);
+		}
+		for (let i = 1; i <= BUILDING_TEXTURE_COUNT; ++i) {
+			game.load.spritesheet('building' + i, 'assets/Building' + i + '.png', 64, 64);
 		}
 
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
