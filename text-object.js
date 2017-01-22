@@ -13,7 +13,6 @@ class TextObject {
 	update(deltaTime){
 		this.text.y -= deltaTime * 40;
 		this.time -= deltaTime * 1;
-		console.log(this.text.alpha);
 		this.text.alpha += 3;
 		if (this.text.alpha > 255){
 			this.text.alpha = 255;
@@ -25,3 +24,9 @@ class TextObject {
 		this.text.kill();
 	}
 }
+/*
+class ComboText {
+	constructor (){
+		this.
+	}
+}*/
