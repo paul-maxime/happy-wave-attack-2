@@ -67,7 +67,7 @@ class Human {
 		this.sprite.x += deltaTime * this.speedX;
 		this.sprite.y += deltaTime * this.speedY;
 		if (!this.dying) {
-			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y - this.sprite.height / 3 > (waveAttack.wave.y - waveAttack.wave.height)) {
+			if (this.sprite.x < waveAttack.wave.width / 1.5 && this.sprite.x > 75 && this.sprite.y - this.sprite.height / 3 > (waveAttack.wave.y - waveAttack.wave.height - 40) && waveAttack.waveUp) {
 				if (this.type === HumanType.MISSILE_FAN) {
 					this.dieAsEnemy();
 				} else {

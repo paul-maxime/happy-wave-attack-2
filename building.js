@@ -38,6 +38,7 @@ class Building
 	setUpHumanAnim() {
 	    this.humanSprite.animations.add('default', [0, 1, 2, 3]);
 	    this.humanSprite.animations.add('dead', [4]);
+	    this.sprite.animations.add('dead', [4]);
 	    this.humanSprite.animations.play('default', 15, true);
 	}
 	update(deltaTime) {
@@ -55,6 +56,10 @@ class Building
 				game.updateWaveColor(1);
 				if (this.life % 5 == 0) {
 					game.playScream();
+				}
+				if (this.life == 12)
+				{
+				    this.sprite.animations.play('dead');
 				}
 				game.playExplosion();
 
