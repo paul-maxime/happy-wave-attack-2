@@ -14,7 +14,7 @@ class Building
 
 		this.setUpHumanAnim();
 
-		let scale = game.rnd.integerInRange(30, 50) / 10;
+		let scale = game.rnd.integerInRange(40, 60) / 10;
 		this.sprite.scale.setTo(scale, scale);
 		this.humanSprite.scale.setTo(scale, scale);
 
@@ -49,12 +49,12 @@ class Building
 		} else {
 			if (game.isSpaceDown() && !this.isAttacking) {
 				this.isAttacking = true;
-				game.playExplosion();
 				game.humansKilled += 1;
 				game.updateWaveColor(1);
-				if (this.life % 3 == 0) {
+				if (this.life % 5 == 0) {
 					game.playScream();
 				}
+				game.playExplosion();
 				this.sprite.rotation += 0.05;
 				this.sprite.position.y += 9;
 				this.humanSprite.rotation += 0.05;
