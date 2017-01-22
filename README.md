@@ -26,3 +26,11 @@ The pixel art was done with Aseprite.
 - All human screams were recorded during the jam, thanks to the many volunteers!
 
 - No, there is no "Happy Wave Attack 1".
+
+## Screenshots
+
+![Alt text](/screenshots/Capture1.png?raw=true)
+![Alt text](/screenshots/Capture2.png?raw=true)
+![Alt text](/screenshots/Capture3.png?raw=true)
+![Alt text](/screenshots/Capture4.png?raw=true)
+![Alt text](/screenshots/Capture5.png?raw=true)
