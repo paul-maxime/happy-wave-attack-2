@@ -53,6 +53,7 @@ class WaveAttack extends Phaser.Game {
 		}
 
 		game.load.image('blood', 'assets/blood.png', 4, 4);
+		game.load.spritesheet('Boooom', 'assets/Boooom.png', 32, 32);
 
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);

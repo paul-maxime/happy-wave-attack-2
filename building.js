@@ -10,9 +10,9 @@ class Building
 
 		this.setUpHumanAnim();
 
-		let scale = game.rnd.integerInRange(40, 60) / 10;
-		this.sprite.scale.setTo(scale, scale);
-		this.humanSprite.scale.setTo(scale, scale);
+		this.scale = game.rnd.integerInRange(40, 60) / 10;
+		this.sprite.scale.setTo(this.scale, this.scale);
+		this.humanSprite.scale.setTo(this.scale, this.scale);
 
 		this.sprite.x = game.world.width + this.sprite.width;
 		this.sprite.y = game.world.height;
@@ -40,6 +40,15 @@ class Building
 	    this.humanSprite.animations.add('dead', [4]);
 	    this.sprite.animations.add('dead', [4]);
 	    this.humanSprite.animations.play('default', 15, true);
+	}
+	setUpBoooom() {
+	    this.boooomSprite.anchor.setTo(0.5, 1);
+	    this.boooomSprite.scale.setTo(this.scale, this.scale);
+	    this.boooomSprite.x = this.sprite.x + 60;
+	    this.boooomSprite.y = game.world.height - 40;
+	    this.boooomSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+	    this.boooomSprite.animations.add('default', [0, 1, 2, 3]);
+	    this.boooomSprite.animations.play('default', 15, false, true);
 	}
 	update(deltaTime) {
 		if (!this.isBlocking) {
@@ -81,7 +90,9 @@ class Building
 			}
 			if (this.life == 0) {
 			    this.humanSprite.animations.play('dead');
-				this.remove();
+			    this.boooomSprite = game.add.sprite(0, 0, 'Boooom', null, waveAttack.humansGroup);
+			    this.setUpBoooom();
+			    this.remove();
 			}
 		}
 	}
