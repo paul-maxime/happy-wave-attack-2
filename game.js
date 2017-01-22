@@ -52,6 +52,8 @@ class WaveAttack extends Phaser.Game {
 		    game.load.spritesheet('Building_Guy' + i, 'assets/Building_Guy' + i + '.png', 64, 64);
 		}
 
+		game.load.image('blood', 'assets/blood.png', 4, 4);
+
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
 
@@ -79,6 +81,8 @@ class WaveAttack extends Phaser.Game {
 		game.load.audio('song', 'assets/song.ogg');
 	}
 	onCreate () {
+    	game.physics.startSystem(Phaser.Physics.ARCADE);
+
 		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
 		this.gameState = GameState.TITLE;
@@ -125,6 +129,14 @@ class WaveAttack extends Phaser.Game {
 			water.y = game.world.height;
 			this.waters.push(water);
 		}
+
+	    this.emitter = game.add.emitter(0, 0, 2000);
+
+	    this.emitter.makeParticles('blood');
+	    this.emitter.gravity = 2000;
+	    this.emitter.minParticleSpeed.setTo(-500, -500);
+	    this.emitter.maxParticleSpeed.setTo(500, 500);
+
 		this.score = 0;
 		this.reelScore = 0;
 
