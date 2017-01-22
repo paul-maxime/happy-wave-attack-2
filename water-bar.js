@@ -6,7 +6,7 @@ class WaterBar {
 		this.curValue = this.maxValue;
 
 		this.maskOffsetStart = 23;
-		this.maskOffsetEnd = -5;
+		this.maskOffsetEnd = -30;
 
 		this.mask = new PIXI.Graphics();
 
@@ -29,13 +29,15 @@ class WaterBar {
 	calcMask () {
 		var perc = this.curValue / this.maxValue;
 
+		console.log();
+
 		this.mask.position.x = 0;
 		this.mask.position.y = 0;
 		this.mask.clear();
 		this.mask.beginFill(0, 1);
 		this.mask.moveTo(this.maskOffsetStart, 0);
-		this.mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, 0);
-		this.mask.lineTo(this.middleSprite.width * perc - this.maskOffsetEnd, this.middleSprite.height);
+		this.mask.lineTo(this.maskOffsetStart + (this.middleSprite.width + this.maskOffsetEnd) * perc, 0);
+		this.mask.lineTo(this.maskOffsetStart + (this.middleSprite.width + this.maskOffsetEnd) * perc, this.middleSprite.height);
 		this.mask.lineTo(this.maskOffsetStart, this.middleSprite.height);
 		this.mask.lineTo(this.maskOffsetStart, 0);
 		this.mask.endFill();
