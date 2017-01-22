@@ -9,8 +9,12 @@ var HumanType = {
 };
 
 class Human {
-	constructor() {
-		this.type = game.rnd.integerInRange(1, HumanType.COUNT) - 1;
+	constructor(isEnemy) {
+		if (isEnemy) {
+			this.type = HumanType.MISSILE_FAN;
+		} else {
+			this.type = game.rnd.integerInRange(1, HumanType.COUNT - 1) - 1;
+		}
 
 		this.sprite = game.add.sprite(0, 0, this.getTexture(), null, waveAttack.humansGroup);
 		this.sprite.anchor.setTo(0.5, 0.5);
@@ -49,7 +53,7 @@ class Human {
 		if (this.type === HumanType.MAN || this.type == HumanType.WOMAN) {
 			this.sprite.y = game.world.height - this.sprite.height / 2;
 		} else {
-			this.sprite.y = game.rnd.integerInRange(100, game.world.height - this.sprite.height);
+			this.sprite.y = game.rnd.integerInRange(200, game.world.height - this.sprite.height / 2);
 		}
 	}
 	setupAnimations() {
@@ -80,8 +84,8 @@ class Human {
 			this.speedY += 500 * deltaTime;
 
 			if (this.sprite.scale.x > 0.1) {
-				this.sprite.scale.x -= 2 * deltaTime;
-				this.sprite.scale.y -= 2 * deltaTime;
+				this.sprite.scale.x -= 1.5 * deltaTime;
+				this.sprite.scale.y -= 1.5 * deltaTime;
 			}
 
 			this.sprite.tint = 0xC03030;

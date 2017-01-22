@@ -27,13 +27,6 @@ class WaveAttack extends Phaser.Game {
 			update: () => this.onUpdate()
 		}, true);
 	}
-	getStringScore(score, maxScale) {
-		let strValue = score.toString();
-		while (strValue.length < maxScale){
-			strValue = "0" + strValue;
-		}
-		return (strValue);
-	}
 	onPreload () {
 		game.load.spritesheet('wave', 'assets/wave.png', 32, 64);
 		game.load.spritesheet('water', 'assets/water.png', 32, 32);
@@ -126,12 +119,18 @@ class WaveAttack extends Phaser.Game {
 		this.score = 0;
 		this.reelScore = 0;
 
+		this.timer = 0;
+
 		var style = { font: "bold 32px Pixeleris", fill: "#fff", boundsAlignH: "left"};
-		this.textScore = game.add.text(0, 0, "score     " + this.getStringScore(this.score, 8), style);
+		this.textScore = game.add.text(0, 30, "score     " + this.getStringScore(this.score, 8), style);
 	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
 		this.textScore.x = game.world.width - 250;
 		this.textScore.y = 20;
 		this.textScore.visible = false;
+
+		this.timerText = game.add.text(0, 30, this.timeToText(this.timer), { font: "32px Pixeleris", fill: "white", boundsAlignH: "left"});
+		this.timerText.x = game.world.width / 2 - this.timerText.width / 2;
+		this.timerText.visible = false;
 
 		this.currentColor = {r: 0x30, g: 0x70, b: 0xFF};
 		this.currentBackColor = {r: 0x80, g: 0x90, b: 0xA0};
@@ -139,7 +138,7 @@ class WaveAttack extends Phaser.Game {
 		this.humansKilled = 0;
 
 		var overlay = new Phaser.Graphics(this.game, 0, 0);
-		overlay.beginFill(0x000000, 0.7);
+		overlay.beginFill(0x000000, 0.8);
 		overlay.drawRect(0,0, game.world.width, game.world.height);
 		overlay.endFill();
 		this.deathOverlay = game.add.image(0, 0, overlay.generateTexture());
@@ -168,12 +167,18 @@ class WaveAttack extends Phaser.Game {
 
 	    this.startText.visible = false;
 	    this.textScore.visible = true;
-	    this.wave.y = game.world.height + this.wave.height - 80;
+	    this.timerText.visible = true;
 
+	    this.wave.y = game.world.height + this.wave.height - 80;
+	    this.humanSpawner.activateSpawn();
 	}
 	updateScore(scoreToAdd){
 		this.score += scoreToAdd;
 		this.textScore.text = "score     " + this.getStringScore(this.score, 8);
+	}
+	updateTimer(deltaTime) {
+		this.timer += deltaTime;
+		this.timerText.text = this.timeToText(this.timer);
 	}
 	onUpdate () {
 		let deltaTime = (game.time.elapsed / 1000);
@@ -204,7 +209,7 @@ class WaveAttack extends Phaser.Game {
 			this.gameOverText.visible = true;
 			this.deathOverlay.visible = true;
 			this.waveUp = false;
-			this.wave.scale.y = 2.0;
+			this.wave.position.y = game.world.height + this.wave.height;
 			this.restartTimer += deltaTime;
 			if (this.restartTimer >= 1) {
 				this.restartText.visible = true;
@@ -215,19 +220,6 @@ class WaveAttack extends Phaser.Game {
 				}
 			}
 		}
-		// if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
-		// 	this.waveUp = true;
-		// 	this.wave.scale.y += delta;
-		// } else {
-		// 	this.wave.scale.y -= delta
-		// }
-		// if (this.wave.scale.y > 21.0) {
-		// 	this.wave.scale.y = 21.0;
-		// }
-		// if (this.wave.scale.y < 3.0) {
-		// 	this.waveUp = false;
-		// 	this.wave.scale.y = 3.0;
-		// }
 		for (let i = 0; i < this.humans.length; ++i) {
 			this.humans[i].update(deltaTime);
 			if (this.humans[i].removed) {
@@ -236,8 +228,10 @@ class WaveAttack extends Phaser.Game {
 			}
 		}
 		this.humanSpawner.update(deltaTime);
-		if (this.gameState == GameState.INGAME)
+		if (this.gameState == GameState.INGAME) {
 			this.waterBar.update(deltaTime);
+			this.updateTimer(deltaTime);
+		}
 		if (this.reelScore > this.score){
 			this.updateScore((((this.reelScore - this.score) / 10) | 0) + 1);
 		}
@@ -271,6 +265,19 @@ class WaveAttack extends Phaser.Game {
 		if (this.currentBackColor.g < 0) this.currentBackColor.g = 0;
 		color = (this.currentBackColor.r << 16) + (this.currentBackColor.g << 8) + this.currentBackColor.b;
 		this.bgBack.tint = color;
+	}
+	getStringScore(score, maxScale) {
+		let strValue = score.toString();
+		while (strValue.length < maxScale){
+			strValue = "0" + strValue;
+		}
+		return (strValue);
+	}
+	timeToText (time) {
+		var str = time.toFixed(2).toString();
+		if (str.length <= 4)
+			str = '0' + str;
+		return (str);
 	}
 	playScream () {
 		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
