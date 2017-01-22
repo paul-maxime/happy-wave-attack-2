@@ -193,7 +193,7 @@ class WaveAttack extends Phaser.Game {
 	}
 	updateScore(scoreToAdd){
 		this.score += scoreToAdd;
-		this.textScore.text = "score     " + this.getStringScore(this.score, 8);
+		this.textScore.text = "SCORE     " + this.getStringScore(this.score, 8);
 	}
 	updateTimer(deltaTime) {
 		this.timer += deltaTime;
