@@ -4,6 +4,7 @@ class Background {
 	constructor (image, speed, scale, number) {
 		this.speed = speed;
 		this.sprites = [];
+		this.pause = false;
 
 		for (let i = 0; i < number; ++i) {
 			let sprite = game.add.sprite(0, 0, image);
@@ -21,10 +22,12 @@ class Background {
 		}
 	}
 	update (deltaTime) {
-		for (let sprite of this.sprites) {
-			sprite.x -= deltaTime * this.speed;
-			if (sprite.x < -sprite.width) {
-				sprite.x += sprite.width * this.sprites.length;
+		if (!this.pause) {
+			for (let sprite of this.sprites) {
+				sprite.x -= deltaTime * this.speed;
+				if (sprite.x < -sprite.width) {
+					sprite.x += sprite.width * this.sprites.length;
+				}
 			}
 		}
 	}
