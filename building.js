@@ -5,7 +5,7 @@ class Building
 	constructor() {
 		this.sprite = game.add.sprite(0, 0, this.getTexture(), null, waveAttack.humansGroup);
 		this.sprite.anchor.setTo(0.5, 1);
-		this.sprite.x = game.world.width + this.sprite.height;
+		this.sprite.x = game.world.width + this.sprite.width;
 		this.sprite.y = game.world.height;
 		this.humanSprite = game.add.sprite(0, 0, this.getHumanText(), null, waveAttack.humansGroup);
 		this.humanSprite.anchor.setTo(0.5, 1);
@@ -57,8 +57,9 @@ class Building
 				game.playExplosion();
 				this.sprite.rotation += 0.05;
 				this.sprite.position.y += 9;
-				this.humanSprite.rotation += 0.05;
-				this.humanSprite.position.y += 9;
+				this.humanSprite.rotation += 0.09;
+				this.humanSprite.position.y += 10;
+				this.humanSprite.position.x -= 6;
 				this.life -= 1;
 			} else if (!game.isSpaceDown() && this.isAttacking) {
 				this.isAttacking = false;
