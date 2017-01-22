@@ -10,7 +10,7 @@ const MISSILE_FAN_TEXTURE_COUNT = 3;
 const BUILDING_TEXTURE_COUNT = 3;
 const BUILDING_GUY_TEXTURE_COUNT = 4;
 
-const SCREAM_COUNT = 9;
+const SCREAM_COUNT = 13;
 const EXPLOSION_COUNT = 3;
 const COIN_COUNT = 3;
 
@@ -144,7 +144,7 @@ class WaveAttack extends Phaser.Game {
 		this.timer = 0;
 
 		var style = { font: "40px Pixelade", fill: "#fff", boundsAlignH: "left"};
-		this.textScore = game.add.text(0, 20, "score     " + this.getStringScore(this.score, 8), style);
+		this.textScore = game.add.text(0, 20, "SCORE     " + this.getStringScore(this.score, 8), style);
 	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
 		this.textScore.x = game.world.width - 290;
 		this.textScore.visible = false;
@@ -332,15 +332,15 @@ class WaveAttack extends Phaser.Game {
 	}
 	playScream () {
 		let index = game.rnd.integerInRange(1, SCREAM_COUNT);
-		game.sound.play('scream' + index);
+		game.sound.play('scream' + index, 0.7);
 	}
 	playExplosion () {
 		let index = game.rnd.integerInRange(1, EXPLOSION_COUNT);
-		game.sound.play('explosion' + index);
+		game.sound.play('explosion' + index, 0.8);
 	}
 	playCoin () {
 		let index = game.rnd.integerInRange(1, COIN_COUNT);
-		game.sound.play('coin' + index, 0.3);
+		game.sound.play('coin' + index, 0.25);
 	}
 	isSpaceDown () {
 		return game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown;

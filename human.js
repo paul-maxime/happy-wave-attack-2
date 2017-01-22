@@ -128,6 +128,7 @@ class Human {
 		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, scoreToWin, 1.5));
 	}
 	dieAsEnemy() {
+		waveAttack.comboTxt.resetCombo();
 		waveAttack.playExplosion();
 		waveAttack.waterBar.removeWater(10);
 		this.remove();

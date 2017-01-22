@@ -60,4 +60,10 @@ class ComboText {
 	setVisibility(value){
 		this.text.visible = value;
 	}
+	resetCombo(){
+		this.nbCombos = 0;
+		this.remainingTime = 0;
+		this.text.visible = false;
+		this.text.fontSize = 32;
+	}
 }
