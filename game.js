@@ -354,5 +354,5 @@ window.onload = function () {
 	setTimeout(function() {
 		game = waveAttack = new WaveAttack();
 		document.getElementById("loading").style.display = "none";
-	}, 3000);
+	}, 1000);
 };
