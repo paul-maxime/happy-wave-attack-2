@@ -17,13 +17,14 @@ var GameState = {
 	GAMEOVER : 1
 }
 
-class WaveAttack {
+class WaveAttack extends Phaser.Game {
 	constructor () {
-		game = new Phaser.Game(1024, 600, Phaser.AUTO, '', {
-			preload: () => this.preload(),
-			create: () => this.create(),
-			update: () => this.update()
-		});
+		super(1024, 600);
+		this.state.add('game', {
+			preload: () => this.onPreload(),
+			create: () => this.onCreate(),
+			update: () => this.onUpdate()
+		}, true);
 	}
 	getStringScore(score, maxScale) {
 		let strValue = score.toString();
@@ -32,7 +33,7 @@ class WaveAttack {
 		}
 		return (strValue);
 	}
-	preload () {
+	onPreload () {
 		game.load.spritesheet('wave', 'assets/wave.png', 32, 64);
 		game.load.spritesheet('water', 'assets/water.png', 32, 32);
 
@@ -75,7 +76,7 @@ class WaveAttack {
 
 		game.load.audio('song', 'assets/song.ogg');
 	}
-	create () {
+	onCreate () {
 		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
 		this.gameState = GameState.INGAME;
@@ -159,7 +160,7 @@ class WaveAttack {
 		this.score += scoreToAdd;
 		this.textScore.text = "score     " + this.getStringScore(this.score, 8);
 	}
-	update () {
+	onUpdate () {
 		let deltaTime = (game.time.elapsed / 1000);
 		let delta = deltaTime * 500;
 		this.bgBack.update(deltaTime);
@@ -188,7 +189,7 @@ class WaveAttack {
 				this.restartText.visible = true;
 				if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown)
 				{
-					this.create();
+					this.onCreate();
 				}
 			}
 		}
@@ -264,5 +265,5 @@ class WaveAttack {
 };
 
 window.onload = function () {
-	waveAttack = new WaveAttack();
+	game = waveAttack = new WaveAttack();
 };
