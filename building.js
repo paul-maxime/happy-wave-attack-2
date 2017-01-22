@@ -57,6 +57,12 @@ class Building
 					game.playScream();
 				}
 				game.playExplosion();
+
+				waveAttack.emitter.x = this.sprite.x// + this.sprite.width / 2;
+		    	waveAttack.emitter.y = this.sprite.y - this.sprite.height / 2;
+
+			    waveAttack.emitter.start(true, 1000, null, 100);
+
 				this.sprite.rotation += 0.05;
 				this.sprite.position.y += 9;
 				this.humanSprite.rotation += 0.09;
