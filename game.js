@@ -201,8 +201,11 @@ class WaveAttack extends Phaser.Game {
 	onUpdate () {
 		let deltaTime = (game.time.elapsed / 1000);
 		let delta = deltaTime * 500;
+
+		this.bgBack.pause = this.bgFront.pause = (game.building && game.building.isBlocking);
 		this.bgBack.update(deltaTime);
 		this.bgFront.update(deltaTime);
+
 		if (this.gameState == GameState.TITLE)
 		{
 		    if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown)
