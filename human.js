@@ -94,8 +94,14 @@ class Human {
 		}
 	}
 	dieAsHuman() {
+		let scoreToWin = 250 * ((waveAttack.comboTxt.nbCombos) ? waveAttack.comboTxt.nbCombos : 1);		
 		waveAttack.playScream();
 		this.dying = true;
+
+		waveAttack.emitter.x = this.sprite.x + this.sprite.width / 4;
+    	waveAttack.emitter.y = this.sprite.y - this.sprite.height / 2;
+
+	    waveAttack.emitter.start(true, 1000, null, 300);
 
 		this.rotationSpeed = game.rnd.realInRange(6.0, 9.0);
 		if (game.rnd.integerInRange(1, 2) === 1) {
@@ -110,15 +116,16 @@ class Human {
 		this.sprite.animations.play('dead');
 
 		waveAttack.waterBar.addWater(10);
-		waveAttack.reelScore += 250;
-		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, 250, 1.5));
+		waveAttack.reelScore += scoreToWin;
+		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, scoreToWin, 1.5));
 		waveAttack.humansKilled += 1;
 	}
 	eatenBySea() {
+		let scoreToWin = 250 * ((waveAttack.comboTxt.nbCombos) ? waveAttack.comboTxt.nbCombos : 1);
 		waveAttack.playCoin();
 		waveAttack.updateWaveColor(5);
-		waveAttack.reelScore += 250;
-		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, 250, 1.5));
+		waveAttack.reelScore += scoreToWin;
+		waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, scoreToWin, 1.5));
 	}
 	dieAsEnemy() {
 		waveAttack.playExplosion();

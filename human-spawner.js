@@ -9,12 +9,12 @@ class HumanSpawner {
 		this.isSpawnable = false;
 	}
 	spawnNextHuman () {
-		let frequency = 10000 / ((this.totalTime / 20) + 1);
+		let frequency = 8000 / ((this.totalTime / 22) + 1);
 		this.nextHuman = game.rnd.integerInRange(frequency / 2, frequency);
 		waveAttack.humans.push(new Human(game.rnd.integerInRange(HumanType.MAN, HumanType.MAN_FLY)));
 	}
 	spawnNextEnemy () {
-		let frequency = 10000 / ((game.humansKilled + 1) / 2);
+		let frequency = 10000 / ((game.humansKilled + 1) / 3);
 		this.nextEnemy = game.rnd.integerInRange(frequency / 2, frequency);
 		waveAttack.humans.push(new Human(HumanType.MISSILE_FAN));
 	}

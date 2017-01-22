@@ -52,6 +52,8 @@ class WaveAttack extends Phaser.Game {
 		    game.load.spritesheet('Building_Guy' + i, 'assets/Building_Guy' + i + '.png', 64, 64);
 		}
 
+		game.load.image('blood', 'assets/blood.png', 4, 4);
+
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
 
@@ -79,6 +81,8 @@ class WaveAttack extends Phaser.Game {
 		game.load.audio('song', 'assets/song.ogg');
 	}
 	onCreate () {
+    	game.physics.startSystem(Phaser.Physics.ARCADE);
+
 		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
 		this.gameState = GameState.TITLE;
@@ -125,6 +129,14 @@ class WaveAttack extends Phaser.Game {
 			water.y = game.world.height;
 			this.waters.push(water);
 		}
+
+	    this.emitter = game.add.emitter(0, 0, 2000);
+
+	    this.emitter.makeParticles('blood');
+	    this.emitter.gravity = 2000;
+	    this.emitter.minParticleSpeed.setTo(-500, -500);
+	    this.emitter.maxParticleSpeed.setTo(500, 500);
+
 		this.score = 0;
 		this.reelScore = 0;
 
@@ -179,6 +191,7 @@ class WaveAttack extends Phaser.Game {
 
 		this.tabText = [];
 		this.textGroup = game.add.group();
+		this.comboTxt = new ComboText();
 	}
 	start() {
 	    this.gameState = GameState.INGAME;
@@ -192,7 +205,7 @@ class WaveAttack extends Phaser.Game {
 	}
 	updateScore(scoreToAdd){
 		this.score += scoreToAdd;
-		this.textScore.text = "score     " + this.getStringScore(this.score, 8);
+		this.textScore.text = "SCORE     " + this.getStringScore(this.score, 8);
 	}
 	updateTimer(deltaTime) {
 		this.timer += deltaTime;
@@ -201,8 +214,11 @@ class WaveAttack extends Phaser.Game {
 	onUpdate () {
 		let deltaTime = (game.time.elapsed / 1000);
 		let delta = deltaTime * 500;
+
+		this.bgBack.pause = this.bgFront.pause = (game.building && game.building.isBlocking);
 		this.bgBack.update(deltaTime);
 		this.bgFront.update(deltaTime);
+
 		if (this.gameState == GameState.TITLE)
 		{
 		    if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown)
@@ -275,6 +291,7 @@ class WaveAttack extends Phaser.Game {
 				--i;
 			}
 		}
+		this.comboTxt.update(deltaTime);
 	}
 	updateWaveColor(delta) {
 		this.currentColor.r += delta * 0.5;

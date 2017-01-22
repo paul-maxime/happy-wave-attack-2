@@ -5,18 +5,19 @@ class Building
 	constructor() {
 		this.sprite = game.add.sprite(0, 0, this.getTexture(), null, waveAttack.humansGroup);
 		this.sprite.anchor.setTo(0.5, 1);
-		this.sprite.x = game.world.width + this.sprite.height;
-		this.sprite.y = game.world.height;
 		this.humanSprite = game.add.sprite(0, 0, this.getHumanText(), null, waveAttack.humansGroup);
 		this.humanSprite.anchor.setTo(0.5, 1);
-		this.humanSprite.x = game.world.width + this.sprite.height;
-		this.humanSprite.y = game.world.height;
 
 		this.setUpHumanAnim();
 
-		let scale = game.rnd.integerInRange(30, 50) / 10;
+		let scale = game.rnd.integerInRange(40, 60) / 10;
 		this.sprite.scale.setTo(scale, scale);
 		this.humanSprite.scale.setTo(scale, scale);
+
+		this.sprite.x = game.world.width + this.sprite.width;
+		this.sprite.y = game.world.height;
+		this.humanSprite.x = game.world.width + this.sprite.width;
+		this.humanSprite.y = game.world.height;
 
 		this.sprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 		this.humanSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
@@ -49,22 +50,32 @@ class Building
 			}
 		} else {
 			if (game.isSpaceDown() && !this.isAttacking) {
+				let scoreToWin = 250 * ((waveAttack.comboTxt.nbCombos) ? waveAttack.comboTxt.nbCombos : 1);
 				this.isAttacking = true;
-				game.playExplosion();
 				game.humansKilled += 1;
 				game.updateWaveColor(1);
-				if (this.life % 3 == 0) {
+				if (this.life % 5 == 0) {
 					game.playScream();
 				}
 				if (this.life == 12)
 				{
 				    this.sprite.animations.play('dead');
 				}
+				game.playExplosion();
+
+				waveAttack.emitter.x = this.sprite.x// + this.sprite.width / 2;
+		    	waveAttack.emitter.y = this.sprite.y - this.sprite.height / 2;
+
+			    waveAttack.emitter.start(true, 1000, null, 100);
+
 				this.sprite.rotation += 0.05;
 				this.sprite.position.y += 9;
-				this.humanSprite.rotation += 0.05;
-				this.humanSprite.position.y += 9;
+				this.humanSprite.rotation += 0.09;
+				this.humanSprite.position.y += 10;
+				this.humanSprite.position.x -= 6;
 				this.life -= 1;
+				waveAttack.reelScore += scoreToWin;
+				waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, scoreToWin, 1.5));
 			} else if (!game.isSpaceDown() && this.isAttacking) {
 				this.isAttacking = false;
 			}
