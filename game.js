@@ -7,6 +7,8 @@ const MAN_TEXTURE_COUNT = 4;
 const WOMAN_TEXTURE_COUNT = 3;
 const MAN_FLY_TEXTURE_COUNT = 3;
 const MISSILE_FAN_TEXTURE_COUNT = 3;
+const BUILDING_TEXTURE_COUNT = 3;
+const BUILDING_GUY_TEXTURE_COUNT = 4;
 
 const SCREAM_COUNT = 9;
 const EXPLOSION_COUNT = 3;
@@ -43,6 +45,12 @@ class WaveAttack extends Phaser.Game {
 		for (let i = 1; i <= WOMAN_TEXTURE_COUNT; ++i) {
 			game.load.spritesheet('missile_fan' + i, 'assets/missile_fan' + i + '.png', 32, 32);
 		}
+		for (let i = 1; i <= BUILDING_TEXTURE_COUNT; ++i) {
+			game.load.spritesheet('building' + i, 'assets/Building' + i + '.png', 64, 64);
+		}
+		for (let i = 1; i <= BUILDING_GUY_TEXTURE_COUNT; ++i) {
+		    game.load.spritesheet('Building_Guy' + i, 'assets/Building_Guy' + i + '.png', 64, 64);
+		}
 
 		game.load.image('scrolling-front', 'assets/scrolling1.png', 32, 32);
 		game.load.image('scrolling-back', 'assets/scrolling2.png', 32, 32);
@@ -75,6 +83,7 @@ class WaveAttack extends Phaser.Game {
 
 		this.gameState = GameState.TITLE;
 		this.restartTimer = 0;
+		this.building = null;
 
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
@@ -148,14 +157,24 @@ class WaveAttack extends Phaser.Game {
 		this.startText.y = game.world.height / 2 + 50;
 		this.startText.visible = true;
 
-		this.gameOverText = game.add.text(0, 0, "GAME OVER", { font: "50px Pixelade", fill: "red", boundsAlignH: "left"});
+		this.gameOverText = game.add.text(0, 0, "GAME OVER", { font: "80px Pixelade", fill: "red", boundsAlignH: "left"});
 		this.gameOverText.x = game.world.width / 2 - this.gameOverText.width / 2;
-		this.gameOverText.y = game.world.height / 2 - 100;
+		this.gameOverText.y = game.world.height / 2 - 150;
 		this.gameOverText.visible = false;
+
+		this.victoryText = game.add.text(0, 0, "VICTORY!", { font: "80px Pixelade", fill: "green", boundsAlignH: "left"});
+		this.victoryText.x = game.world.width / 2 - this.victoryText.width / 2;
+		this.victoryText.y = game.world.height / 2 - 150;
+		this.victoryText.visible = false;
+
+		this.summaryText = game.add.text(0, 0, "", { font: "25px Pixelade", fill: "white", boundsAlignH: "left"});
+		this.summaryText.visible = false;
+		this.scoreEndText = game.add.text(0, 0, "", { font: "25px Pixelade", fill: "white", boundsAlignH: "left"});
+		this.summaryText.visible = false;
 
 		this.restartText = game.add.text(0, 0, "PRESS SPACE TO RESTART", { font: "20px Pixelade", fill: "white", boundsAlignH: "left"});
 		this.restartText.x = game.world.width / 2 - this.restartText.width / 2;
-		this.restartText.y = game.world.height / 2 + 50;
+		this.restartText.y = game.world.height - 100;
 		this.restartText.visible = false;
 
 		this.tabText = [];
@@ -183,8 +202,11 @@ class WaveAttack extends Phaser.Game {
 	onUpdate () {
 		let deltaTime = (game.time.elapsed / 1000);
 		let delta = deltaTime * 500;
+
+		this.bgBack.pause = this.bgFront.pause = (game.building && game.building.isBlocking);
 		this.bgBack.update(deltaTime);
 		this.bgFront.update(deltaTime);
+
 		if (this.gameState == GameState.TITLE)
 		{
 		    if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown)
@@ -192,7 +214,8 @@ class WaveAttack extends Phaser.Game {
 		        this.start();
 		    }
 		} else if (this.gameState == GameState.INGAME) {
-			if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
+			if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown ||
+				(game.building && game.building.isBlocking)) {
 				this.waveUp = true;
 				this.wave.y -= delta;
 			} else {
@@ -205,8 +228,22 @@ class WaveAttack extends Phaser.Game {
 			if (this.wave.y < game.world.height) {
 				this.wave.y = game.world.height;
 			}
+
 		} else if (this.gameState == GameState.GAMEOVER) {
-			this.gameOverText.visible = true;
+			if (this.humansKilled > 0) {
+				this.gameOverText.visible = true;
+				this.summaryText.text = "The tsunami ended in " + this.timeToText(this.timer) + " seconds and did " + this.humansKilled + " victims.";
+				this.scoreEndText.text = "Score: " + this.score;
+				this.scoreEndText.x = game.world.width / 2 - this.scoreEndText.width / 2;
+				this.scoreEndText.y = game.world.height / 2;
+				this.scoreEndText.visible = true;
+			} else {
+				this.victoryText.visible = true;
+				this.summaryText.text = "The tsunami ended in " + this.timeToText(this.timer) + " seconds. Hopefully, no one was hurt.";
+			}
+			this.summaryText.x = game.world.width / 2 - this.summaryText.width / 2;
+			this.summaryText.y = game.world.height / 2 - 50;
+			this.summaryText.visible = true;
 			this.deathOverlay.visible = true;
 			this.waveUp = false;
 			this.wave.position.y = game.world.height + this.wave.height;
@@ -292,8 +329,14 @@ class WaveAttack extends Phaser.Game {
 		let index = game.rnd.integerInRange(1, COIN_COUNT);
 		game.sound.play('coin' + index, 0.3);
 	}
+	isSpaceDown () {
+		return game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown;
+	}
 };
 
 window.onload = function () {
-	game = waveAttack = new WaveAttack();
+	setTimeout(function() {
+		game = waveAttack = new WaveAttack();
+		document.getElementById("loading").style.display = "none";
+	}, 3000);
 };
