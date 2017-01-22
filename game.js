@@ -123,7 +123,7 @@ class WaveAttack extends Phaser.Game {
 		var style = { font: "bold 32px Pixeleris", fill: "#fff", boundsAlignH: "left"};
 		this.textScore = game.add.text(0, 30, "score     " + this.getStringScore(this.score, 8), style);
 	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
-		this.textScore.x = game.world.width - 250;
+		this.textScore.x = game.world.width - (game.world.width / 4);
 
 		this.timerText = game.add.text(0, 30, this.timeToText(this.timer), { font: "32px Pixeleris", fill: "white", boundsAlignH: "left"});
 		this.timerText.x = game.world.width / 2 - this.timerText.width / 2;
