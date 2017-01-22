@@ -4,11 +4,11 @@ class Building
 {
 	constructor() {
 		this.sprite = game.add.sprite(0, 0, this.getTexture(), null, waveAttack.humansGroup);
-		this.sprite.anchor.setTo(0, 1);
+		this.sprite.anchor.setTo(0.5, 1);
 		this.sprite.x = game.world.width + this.sprite.height;
 		this.sprite.y = game.world.height;
 		this.humanSprite = game.add.sprite(0, 0, this.getHumanText(), null, waveAttack.humansGroup);
-		this.humanSprite.anchor.setTo(0, 1);
+		this.humanSprite.anchor.setTo(0.5, 1);
 		this.humanSprite.x = game.world.width + this.sprite.height;
 		this.humanSprite.y = game.world.height;
 
@@ -43,12 +43,22 @@ class Building
 		if (!this.isBlocking) {
 			this.sprite.x += deltaTime * this.speedX;
 			this.humanSprite.x += deltaTime * this.speedX;
-			if (this.sprite.x < game.wave.width / 2 && game.waveUp) {
+			if (this.sprite.x < game.wave.width) {
 				this.isBlocking = true;
 			}
 		} else {
 			if (game.isSpaceDown() && !this.isAttacking) {
 				this.isAttacking = true;
+				game.playExplosion();
+				game.humansKilled += 1;
+				game.updateWaveColor(1);
+				if (this.life % 3 == 0) {
+					game.playScream();
+				}
+				this.sprite.rotation += 0.05;
+				this.sprite.position.y += 9;
+				this.humanSprite.rotation += 0.05;
+				this.humanSprite.position.y += 9;
 				this.life -= 1;
 			} else if (!game.isSpaceDown() && this.isAttacking) {
 				this.isAttacking = false;

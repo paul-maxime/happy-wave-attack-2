@@ -5,7 +5,7 @@ class HumanSpawner {
 		this.totalTime = 0;
 		this.nextHuman = 0;
 		this.nextEnemy = 0;
-		this.nextBuilding = 2000;
+		this.nextBuilding = 15000;
 		this.isSpawnable = false;
 	}
 	spawnNextHuman () {
@@ -19,7 +19,7 @@ class HumanSpawner {
 		waveAttack.humans.push(new Human(HumanType.MISSILE_FAN));
 	}
 	spawnNextBuilding () {
-		this.nextBuilding = 20000;
+		this.nextBuilding = 15000;
 		waveAttack.building = new Building();
 	}
 	activateSpawn() {
@@ -41,14 +41,14 @@ class HumanSpawner {
 			if (this.nextEnemy < 0) {
 				this.spawnNextEnemy();
 			}
-		}
-		if (!game.building) {
-			this.nextBuilding -= deltaTime * 1000;
-			if (this.nextBuilding < 0) {
-				this.spawnNextBuilding();
+			if (!game.building) {
+				this.nextBuilding -= deltaTime * 1000;
+				if (this.nextBuilding < 0) {
+					this.spawnNextBuilding();
+				}
+			} else {
+				game.building.update(deltaTime);
 			}
-		} else {
-			game.building.update(deltaTime);
 		}
 	}
 }
