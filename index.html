@@ -4,12 +4,19 @@
     <meta charset="utf-8">
     <title>Happy Wave Attack 2</title>
     <style>
-      body {
+      html, body {
         margin: 0;
         background-color: #202020;
+        height: 100%;
+        width: 100%;
       }
       canvas {
         margin: 0 auto;
+      }
+      .mid {
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
       }
       @font-face {
         font-family: "Pixelade";
@@ -20,6 +27,7 @@
   </head>
   <body>
     <p style="font-family: Pixeleris; display: none;">Hello World</p>
+    <img id="loading" class="mid" src="assets/gear.gif" style="display:block;margin:auto;" height="60" width="60">
     <script src="background.js"></script>
     <script src="building.js"></script>
     <script src="game.js"></script>

@@ -326,5 +326,8 @@ class WaveAttack extends Phaser.Game {
 };
 
 window.onload = function () {
-	setTimeout(function() { game = waveAttack = new WaveAttack(); }, 3000);
+	setTimeout(function() {
+		game = waveAttack = new WaveAttack();
+		document.getElementById("loading").style.display = "none";
+	}, 3000);
 };
