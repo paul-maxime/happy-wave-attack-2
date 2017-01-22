@@ -14,7 +14,8 @@ const COIN_COUNT = 3;
 
 var GameState = {
 	INGAME : 0,
-	GAMEOVER : 1
+	GAMEOVER: 1,
+    TITLE : 2
 }
 
 class WaveAttack extends Phaser.Game {
@@ -72,7 +73,7 @@ class WaveAttack extends Phaser.Game {
 	onCreate () {
 		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
-		this.gameState = GameState.INGAME;
+		this.gameState = GameState.TITLE;
 		this.restartTimer = 0;
 
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
@@ -124,9 +125,11 @@ class WaveAttack extends Phaser.Game {
 		this.textScore = game.add.text(0, 20, "score     " + this.getStringScore(this.score, 8), style);
 	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
 		this.textScore.x = game.world.width - 290;
+		this.textScore.visible = false;
 
 		this.timerText = game.add.text(0, 20, this.timeToText(this.timer), { font: "40px Pixelade", fill: "white", boundsAlignH: "left"});
 		this.timerText.x = game.world.width / 2 - this.timerText.width / 2;
+		this.timerText.visible = false;
 
 		this.currentColor = {r: 0x30, g: 0x70, b: 0xFF};
 		this.currentBackColor = {r: 0x80, g: 0x90, b: 0xA0};
@@ -139,6 +142,11 @@ class WaveAttack extends Phaser.Game {
 		overlay.endFill();
 		this.deathOverlay = game.add.image(0, 0, overlay.generateTexture());
 		this.deathOverlay.visible = false;
+
+		this.startText = game.add.text(0, 0, "HOLD SPACE TO PLAY", { font: "20px Pixelade", fill: "white", boundsAlignH: "left" });
+		this.startText.x = game.world.width / 2 - this.startText.width / 2;
+		this.startText.y = game.world.height / 2 + 50;
+		this.startText.visible = true;
 
 		this.gameOverText = game.add.text(0, 0, "GAME OVER", { font: "50px Pixelade", fill: "red", boundsAlignH: "left"});
 		this.gameOverText.x = game.world.width / 2 - this.gameOverText.width / 2;
@@ -153,6 +161,16 @@ class WaveAttack extends Phaser.Game {
 		this.tabText = [];
 		this.textGroup = game.add.group();
 	}
+	start() {
+	    this.gameState = GameState.INGAME;
+
+	    this.startText.visible = false;
+	    this.textScore.visible = true;
+	    this.timerText.visible = true;
+
+	    this.wave.y = game.world.height + this.wave.height - 80;
+	    this.humanSpawner.activateSpawn();
+	}
 	updateScore(scoreToAdd){
 		this.score += scoreToAdd;
 		this.textScore.text = "score     " + this.getStringScore(this.score, 8);
@@ -166,7 +184,13 @@ class WaveAttack extends Phaser.Game {
 		let delta = deltaTime * 500;
 		this.bgBack.update(deltaTime);
 		this.bgFront.update(deltaTime);
-		if (this.gameState == GameState.INGAME) {
+		if (this.gameState == GameState.TITLE)
+		{
+		    if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown)
+		    {
+		        this.start();
+		    }
+		} else if (this.gameState == GameState.INGAME) {
 			if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
 				this.waveUp = true;
 				this.wave.y -= delta;
@@ -184,29 +208,17 @@ class WaveAttack extends Phaser.Game {
 			this.gameOverText.visible = true;
 			this.deathOverlay.visible = true;
 			this.waveUp = false;
-			this.wave.scale.y = 2.0;
+			this.wave.position.y = game.world.height + this.wave.height;
 			this.restartTimer += deltaTime;
 			if (this.restartTimer >= 1) {
 				this.restartText.visible = true;
 				if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown)
 				{
-					this.onCreate();
+				    this.onCreate();
+				    this.start();
 				}
 			}
 		}
-		// if (game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) || game.input.pointer1.isDown) {
-		// 	this.waveUp = true;
-		// 	this.wave.scale.y += delta;
-		// } else {
-		// 	this.wave.scale.y -= delta
-		// }
-		// if (this.wave.scale.y > 21.0) {
-		// 	this.wave.scale.y = 21.0;
-		// }
-		// if (this.wave.scale.y < 3.0) {
-		// 	this.waveUp = false;
-		// 	this.wave.scale.y = 3.0;
-		// }
 		for (let i = 0; i < this.humans.length; ++i) {
 			this.humans[i].update(deltaTime);
 			if (this.humans[i].removed) {
