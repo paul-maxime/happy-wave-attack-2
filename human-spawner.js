@@ -5,6 +5,7 @@ class HumanSpawner {
 		this.totalTime = 0;
 		this.nextHuman = 0;
 		this.nextEnemy = 0;
+		this.isSpawnable = false;
 	}
 	spawnNextHuman () {
 		let frequency = 10000 / ((this.totalTime / 20) + 1);
@@ -16,7 +17,15 @@ class HumanSpawner {
 		this.nextEnemy = game.rnd.integerInRange(frequency / 2, frequency);
 		waveAttack.humans.push(new Human(true));
 	}
-	update (deltaTime) {
+	activateSpawn() {
+	    this.isSpawnable = true;
+	}
+	desactivateSpawn() {
+	    this.isSpawnable = false;
+	}
+	update(deltaTime) {
+	    if (!this.isSpawnable)
+	        return;
 		this.totalTime += deltaTime;
 		this.nextHuman -= deltaTime * 1000;
 		if (this.nextHuman < 0) {
