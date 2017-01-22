@@ -79,6 +79,7 @@ class WaveAttack extends Phaser.Game {
 
 		this.gameState = GameState.TITLE;
 		this.restartTimer = 0;
+		this.building = null;
 
 		this.bgBack = new Background('scrolling-back', 25, 10, 3);
 		this.bgFront = new Background('scrolling-front', 50, 4, 10);
@@ -222,14 +223,14 @@ class WaveAttack extends Phaser.Game {
 
 		} else if (this.gameState == GameState.GAMEOVER) {
 			if (this.humansKilled > 0) {
-				this.gameOverText.visible = true;				
+				this.gameOverText.visible = true;
 				this.summaryText.text = "The tsunami ended in " + this.timeToText(this.timer) + " seconds and did " + this.humansKilled + " victims.";
 				this.scoreEndText.text = "Score: " + this.score;
 				this.scoreEndText.x = game.world.width / 2 - this.scoreEndText.width / 2;
 				this.scoreEndText.y = game.world.height / 2;
 				this.scoreEndText.visible = true;
 			} else {
-				this.victoryText.visible = true;				
+				this.victoryText.visible = true;
 				this.summaryText.text = "The tsunami ended in " + this.timeToText(this.timer) + " seconds. Hopefully, no one was hurt.";
 			}
 			this.summaryText.x = game.world.width / 2 - this.summaryText.width / 2;
