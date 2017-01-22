@@ -49,6 +49,7 @@ class Building
 			}
 		} else {
 			if (game.isSpaceDown() && !this.isAttacking) {
+				let scoreToWin = 250 * ((waveAttack.comboTxt.nbCombos) ? waveAttack.comboTxt.nbCombos : 1);
 				this.isAttacking = true;
 				game.humansKilled += 1;
 				game.updateWaveColor(1);
@@ -62,6 +63,8 @@ class Building
 				this.humanSprite.position.y += 10;
 				this.humanSprite.position.x -= 6;
 				this.life -= 1;
+				waveAttack.reelScore += scoreToWin;
+				waveAttack.tabText.push(new TextObject(this.sprite.x, this.sprite.y, scoreToWin, 1.5));
 			} else if (!game.isSpaceDown() && this.isAttacking) {
 				this.isAttacking = false;
 			}

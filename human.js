@@ -98,6 +98,11 @@ class Human {
 		waveAttack.playScream();
 		this.dying = true;
 
+		waveAttack.emitter.x = this.sprite.x + this.sprite.width / 4;
+    	waveAttack.emitter.y = this.sprite.y - this.sprite.height / 2;
+
+	    waveAttack.emitter.start(true, 1000, null, 300);
+
 		this.rotationSpeed = game.rnd.realInRange(6.0, 9.0);
 		if (game.rnd.integerInRange(1, 2) === 1) {
 			this.rotationSpeed *= -1;
