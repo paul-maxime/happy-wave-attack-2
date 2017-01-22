@@ -120,12 +120,12 @@ class WaveAttack extends Phaser.Game {
 
 		this.timer = 0;
 
-		var style = { font: "bold 32px Pixeleris", fill: "#fff", boundsAlignH: "left"};
-		this.textScore = game.add.text(0, 30, "score     " + this.getStringScore(this.score, 8), style);
+		var style = { font: "40px Pixelade", fill: "#fff", boundsAlignH: "left"};
+		this.textScore = game.add.text(0, 20, "score     " + this.getStringScore(this.score, 8), style);
 	    this.textScore.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
-		this.textScore.x = game.world.width - 250;
+		this.textScore.x = game.world.width - 290;
 
-		this.timerText = game.add.text(0, 30, this.timeToText(this.timer), { font: "32px Pixeleris", fill: "white", boundsAlignH: "left"});
+		this.timerText = game.add.text(0, 20, this.timeToText(this.timer), { font: "40px Pixelade", fill: "white", boundsAlignH: "left"});
 		this.timerText.x = game.world.width / 2 - this.timerText.width / 2;
 
 		this.currentColor = {r: 0x30, g: 0x70, b: 0xFF};
@@ -140,12 +140,12 @@ class WaveAttack extends Phaser.Game {
 		this.deathOverlay = game.add.image(0, 0, overlay.generateTexture());
 		this.deathOverlay.visible = false;
 
-		this.gameOverText = game.add.text(0, 0, "GAME OVER", { font: "50px Pixeleris", fill: "red", boundsAlignH: "left"});
+		this.gameOverText = game.add.text(0, 0, "GAME OVER", { font: "50px Pixelade", fill: "red", boundsAlignH: "left"});
 		this.gameOverText.x = game.world.width / 2 - this.gameOverText.width / 2;
 		this.gameOverText.y = game.world.height / 2 - 100;
 		this.gameOverText.visible = false;
 
-		this.restartText = game.add.text(0, 0, "PRESS SPACE TO RESTART", { font: "20px Pixeleris", fill: "white", boundsAlignH: "left"});
+		this.restartText = game.add.text(0, 0, "PRESS SPACE TO RESTART", { font: "20px Pixelade", fill: "white", boundsAlignH: "left"});
 		this.restartText.x = game.world.width / 2 - this.restartText.width / 2;
 		this.restartText.y = game.world.height / 2 + 50;
 		this.restartText.visible = false;
