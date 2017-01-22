@@ -7,8 +7,6 @@ class Building
 		this.sprite.anchor.setTo(0.5, 1);
 		this.humanSprite = game.add.sprite(0, 0, this.getHumanText(), null, waveAttack.humansGroup);
 		this.humanSprite.anchor.setTo(0.5, 1);
-		this.humanSprite.x = game.world.width + this.sprite.height;
-		this.humanSprite.y = game.world.height;
 
 		this.setUpHumanAnim();
 
@@ -18,6 +16,8 @@ class Building
 
 		this.sprite.x = game.world.width + this.sprite.width;
 		this.sprite.y = game.world.height;
+		this.humanSprite.x = game.world.width + this.sprite.width;
+		this.humanSprite.y = game.world.height;
 
 		this.sprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 		this.humanSprite.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
