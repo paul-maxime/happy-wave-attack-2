@@ -187,7 +187,7 @@ class WaveAttack extends Phaser.Game {
 	    this.textScore.visible = true;
 	    this.timerText.visible = true;
 
-	    this.wave.y = game.world.height + this.wave.height - 80;
+	    this.wave.y = game.world.height + this.wave.height - 60;
 	    this.humanSpawner.activateSpawn();
 	}
 	updateScore(scoreToAdd){
@@ -217,9 +217,9 @@ class WaveAttack extends Phaser.Game {
 			} else {
 				this.wave.y += delta
 			}
-			if (this.wave.y > game.world.height + this.wave.height - 80) {
+			if (this.wave.y > game.world.height + this.wave.height - 60) {
 				this.waveUp = false;
-				this.wave.y = game.world.height + this.wave.height - 80;
+				this.wave.y = game.world.height + this.wave.height - 60;
 			}
 			if (this.wave.y < game.world.height) {
 				this.wave.y = game.world.height;
