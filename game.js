@@ -160,6 +160,7 @@ class WaveAttack extends Phaser.Game {
 
 		this.tabText = [];
 		this.textGroup = game.add.group();
+		this.comboTxt = new ComboText();
 	}
 	start() {
 	    this.gameState = GameState.INGAME;
@@ -241,6 +242,7 @@ class WaveAttack extends Phaser.Game {
 				--i;
 			}
 		}
+		this.comboTxt.update(deltaTime);
 	}
 	updateWaveColor(delta) {
 		this.currentColor.r += delta * 0.5;
