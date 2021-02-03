@@ -238,7 +238,7 @@ class WaveAttack extends Phaser.Game {
 		this.timerText.text = this.timeToText(this.timer);
 	}
 	onUpdate () {
-		let deltaTime = (game.time.elapsed / 1000);
+		let deltaTime = game.time.physicsElapsed;
 		let delta = deltaTime * 500;
 
 		this.bgBack.pause = this.bgFront.pause = (game.building && game.building.isBlocking);

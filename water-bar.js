@@ -29,8 +29,6 @@ class WaterBar {
 	calcMask () {
 		var perc = this.curValue / this.maxValue;
 
-		console.log();
-
 		this.mask.position.x = 0;
 		this.mask.position.y = 0;
 		this.mask.clear();
